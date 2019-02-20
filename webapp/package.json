@@ -5,13 +5,15 @@
   "dependencies": {
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
+    "react-leaflet": "^2.2.1",
     "react-scripts-ts": "3.1.0"
   },
   "scripts": {
     "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build && mv build/* ../target/scala-2.12/classes",
+    "build": "npm run clean && react-scripts-ts build && mkdir ../target/scala-2.12/classes/webapp && mv build/* ../target/scala-2.12/classes/webapp",
     "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
+    "eject": "react-scripts-ts eject",
+    "clean": "rm -rf ../target/scala-2.12/classes/webapp"
   },
   "devDependencies": {
     "@types/jest": "^24.0.6",
