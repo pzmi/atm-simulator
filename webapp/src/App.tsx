@@ -1,8 +1,7 @@
 import * as React from 'react';
-import './App.css';
-
 // @ts-ignore
 import {Map, Marker, Popup, TileLayer} from "react-leaflet";
+import './App.css';
 import logo from './logo.svg';
 
 interface State {
@@ -17,6 +16,11 @@ class App extends React.Component<any, State> {
         lng: 19.944544,
         zoom: 14,
     };
+
+    public componentDidMount(): void {
+        const websocket = new WebSocket("ws://localhost:8080/websocket");
+        websocket.onmessage = (m) => console.log(m);
+    }
 
     public render() {
 
