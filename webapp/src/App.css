@@ -31,3 +31,16 @@
   height: 800px;
   width: 100%;
 }
+
+.map-with-events {
+  display: flex;
+  flex-direction: row;
+}
+
+.events {
+  flex-direction: column;
+  width: auto;
+  word-wrap: break-word;
+  overflow-y: scroll;
+  height: 800px;
+}

@@ -8,22 +8,25 @@ interface State {
     lat: number,
     lng: number,
     zoom: number
+    events: string[]
 }
 
 class App extends React.Component<any, State> {
     public state: State = {
+        events: [],
         lat: 50.059683,
         lng: 19.944544,
-        zoom: 14,
+        zoom: 14
     };
 
     public componentDidMount(): void {
         const websocket = new WebSocket("ws://localhost:8080/websocket");
-        websocket.onmessage = (m) => console.log(m);
+        websocket.onmessage = (m) => this.setState((s) => {
+            return {...s, events: [...s.events, m.data]}
+        });
     }
 
     public render() {
-
         const position = [this.state.lat, this.state.lng];
         return (
             <div className="App">
@@ -31,17 +34,22 @@ class App extends React.Component<any, State> {
                     <img src={logo} className="App-logo" alt="logo"/>
                     <h1 className="App-title">Welcome to React</h1>
                 </header>
-                <Map center={position} zoom={this.state.zoom}>
-                    <TileLayer
-                        attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <Marker position={position}>
-                        <Popup>
-                            A pretty CSS3 popup. <br/> Easily customizable.
-                        </Popup>
-                    </Marker>
-                </Map>
+                <div className="map-with-events">
+                    <Map center={position} zoom={this.state.zoom}>
+                        <TileLayer
+                            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        <Marker position={position}>
+                            <Popup>
+                                A pretty CSS3 popup. <br/> Easily customizable.
+                            </Popup>
+                        </Marker>
+                    </Map>
+                    <div className="events">
+                        {this.state.events.map((m, i) => <div key={i}>{m}</div>)}
+                    </div>
+                </div>
             </div>
         );
     }
