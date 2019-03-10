@@ -22,7 +22,7 @@ class App extends React.Component<any, State> {
     public componentDidMount(): void {
         const websocket = new WebSocket("ws://localhost:8080/websocket");
         websocket.onmessage = (m) => this.setState((s) => {
-            return {...s, events: [...s.events, m.data]}
+            return {...s, events: [m.data, ...s.events]}
         });
     }
 

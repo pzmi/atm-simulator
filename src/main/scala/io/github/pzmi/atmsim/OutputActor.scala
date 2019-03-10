@@ -2,7 +2,7 @@ package io.github.pzmi.atmsim
 
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption.{CREATE, TRUNCATE_EXISTING, WRITE}
-import java.time.{Instant, LocalDateTime}
+import java.time.Instant
 import java.util.concurrent.Executors
 
 import akka.Done
@@ -10,6 +10,8 @@ import akka.actor.{Actor, ActorLogging, Props}
 import akka.stream.scaladsl.{FileIO, Source, SourceQueueWithComplete}
 import akka.stream.{Materializer, OverflowStrategy}
 import akka.util.ByteString
+import org.json4s._
+import org.json4s.jackson.Serialization.write
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor}
@@ -17,12 +19,15 @@ import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor}
 object OutputActor {
 
   def props()(implicit materializer: Materializer): Props = {
+    implicit val formats: AnyRef with Formats = DefaultFormats + InstantSerializer
+
     val output = FileIO.toPath(Paths.get("output.txt"), Set(WRITE, TRUNCATE_EXISTING, CREATE))
 
     val queue = Source.queue[Event](1000000, OverflowStrategy.backpressure)
       .groupedWithin(10000, 1 second)
       .flatMapMerge(1, e => Source(e.sortBy(a => a.time)))
-      .map(e => ByteString(e.toString + System.lineSeparator()))
+      .map(e => write(e))
+      .map(json => ByteString(json + System.lineSeparator()))
       .to(output)
       .run()
 
@@ -51,3 +56,10 @@ class OutputActor(queue: SourceQueueWithComplete[Event]) extends Actor with Acto
 }
 
 case class Complete(startTime: Instant)
+
+object InstantSerializer extends CustomSerializer[Instant](_ => ( {
+  case JString(str) =>
+    Instant.parse(str)
+}, {
+  case instant: Instant => JString(instant.toEpochMilli.toString)
+}))
