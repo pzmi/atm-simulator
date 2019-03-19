@@ -2,13 +2,13 @@ import * as React from 'react';
 // @ts-ignore
 import {Map, Marker, Popup, TileLayer} from "react-leaflet";
 import './App.css';
-import logo from './logo.svg';
+import {Event, Props} from './Event'
 
 interface State {
     lat: number,
     lng: number,
     zoom: number
-    events: string[]
+    events: Props[]
 }
 
 class App extends React.Component<any, State> {
@@ -22,7 +22,7 @@ class App extends React.Component<any, State> {
     public componentDidMount(): void {
         const websocket = new WebSocket("ws://localhost:8080/websocket");
         websocket.onmessage = (m) => this.setState((s) => {
-            return {...s, events: [m.data, ...s.events]}
+            return {...s, events: [JSON.parse(m.data), ...s.events]}
         });
     }
 
@@ -30,10 +30,6 @@ class App extends React.Component<any, State> {
         const position = [this.state.lat, this.state.lng];
         return (
             <div className="App">
-                <header className="App-header">
-                    <img src={logo} className="App-logo" alt="logo"/>
-                    <h1 className="App-title">Welcome to React</h1>
-                </header>
                 <div className="map-with-events">
                     <Map center={position} zoom={this.state.zoom}>
                         <TileLayer
@@ -47,7 +43,9 @@ class App extends React.Component<any, State> {
                         </Marker>
                     </Map>
                     <div className="events">
-                        {this.state.events.map((m, i) => <div key={i}>{m}</div>)}
+                        {this.state.events
+                            .map((m: Props, i) => <Event key={i} eventData={m}/>)
+                        }
                     </div>
                 </div>
             </div>

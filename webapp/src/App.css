@@ -38,9 +38,19 @@
 }
 
 .events {
+  text-align: left;
   flex-direction: column;
-  width: auto;
-  word-wrap: break-word;
+  width: 350px;
   overflow-y: scroll;
   height: 800px;
+  margin: 5px 0 5px 5px;
+}
+
+.Event-container {
+  margin-bottom: 10px;
+}
+
+.Event-header {
+  margin-bottom: 5px;
+  font-weight: bold
 }
