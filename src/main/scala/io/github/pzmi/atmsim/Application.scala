@@ -1,6 +1,7 @@
 package io.github.pzmi.atmsim
 
 import java.nio.file.Paths
+import java.time.{LocalDate, LocalDateTime, LocalTime}
 
 import akka.actor.ActorRef
 import akka.http.scaladsl.Http
@@ -11,10 +12,12 @@ import akka.util.{ByteString, Timeout}
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 
 object Application extends App with ActorModule with ServerModule with StrictLogging {
-  Simulation.start(1L, 1000, 100)
+  val startDate = LocalDateTime.of(LocalDate.of(2019, 3, 3), LocalTime.of(11, 11))
+  Simulation.start(1L, 1000, 100, startDate)
 
   val appRoute = getFromResource("webapp/index.html")
   val staticRoute = pathPrefix("static")(getFromResourceDirectory("webapp/static"))
@@ -35,7 +38,7 @@ object Application extends App with ActorModule with ServerModule with StrictLog
     val file = Paths.get("output.txt")
     FileIO.fromPath(file)
       .via(Framing
-        .delimiter(ByteString("\n"), 4096, true)
+        .delimiter(ByteString("\n"), 4096, allowTruncation = true)
         .map(_.utf8String))
       .map(TextMessage(_))
   }
@@ -52,7 +55,7 @@ object Application extends App with ActorModule with ServerModule with StrictLog
   private val port = 8080
   val bindingFuture = Http().bindAndHandle(websocket ~ staticRoute ~ appRoute, host, port)
 
-  logger.info(s"Starting server on $host:$port")
+  logger.info(s"Starting server on http://$host:$port")
 
   sys.addShutdownHook({
     bindingFuture

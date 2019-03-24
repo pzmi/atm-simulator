@@ -5,6 +5,8 @@ import * as React from 'react';
 import {Icon, Map, Marker, Popup, TileLayer} from "react-leaflet";
 import './App.css';
 import {Event, Props} from './Event'
+import notesBig from './notes-x2.png'
+import notes from './notes.png'
 
 interface Atm {
     location: number[]
@@ -20,9 +22,9 @@ interface State {
 const cracowLocation = [50.06143, 19.944544];
 
 const icon = L.icon({
-    iconRetinaUrl: 'notes-x2.png',
+    iconRetinaUrl: notesBig,
     iconSize: [48, 48], // size of the icon,
-    iconUrl: 'notes.png'
+    iconUrl: notes
 });
 
 class App extends React.Component<any, State> {
@@ -69,7 +71,7 @@ class App extends React.Component<any, State> {
     }
 
     private loadAtms() {
-        axios.get('atms.json')
+        axios.get('static/atms.json')
             .then(r => {
                 const atms = r.data.atms;
 

@@ -1,6 +1,6 @@
 package io.github.pzmi.atmsim
 
-import java.time.Instant
+import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import akka.actor.ActorRef
 import akka.stream.Materializer
@@ -14,14 +14,17 @@ import scala.concurrent.{Await, ExecutionContext}
 import scala.language.postfixOps
 import scala.util.Random
 
-object Simulation extends StrictLogging{
+object Simulation extends StrictLogging {
 
-  def start(randomSeed: Long, numberOfAtms: Int, numberOfEvents: Int)(implicit materializer: Materializer,
-                                                                      executionContext: ExecutionContext): Unit = {
+  def start(randomSeed: Long,
+            numberOfAtms: Int,
+            numberOfEvents: Int,
+            startDate: LocalDateTime)(implicit materializer: Materializer,
+                                      executionContext: ExecutionContext): Unit = {
     Random.setSeed(randomSeed)
 
     val (outputActor, atms) = prepareActors(numberOfAtms)
-    val stream = eventsGeneratorStreamWith(atms, numberOfEvents)
+    val stream = eventsGeneratorStreamWith(atms, numberOfEvents, startDate)
 
     start(outputActor, stream)
     sys.addShutdownHook({
@@ -51,17 +54,19 @@ object Simulation extends StrictLogging{
       .onComplete(_ => outputActor ! Complete(startTime))
   }
 
-  private def eventsGeneratorStreamWith(atms: Array[ActorRef], numberOfEvents: Int): Source[Any, Any] =
+  private def eventsGeneratorStreamWith(atms: Array[ActorRef],
+                                        numberOfEvents: Int,
+                                        startDate: LocalDateTime): Source[Any, Any] =
     Source(0 to numberOfEvents)
-      .map(_ => Random.nextInt(10000))
+      .scan(startDate.toInstant(ZoneOffset.UTC))((acc, _) => acc.plusSeconds(10))
       .mapAsync(Runtime.getRuntime.availableProcessors()) {
-        n: Int => sendMessage(atms, n)
+        i: Instant => sendMessage(atms, i, Random.nextInt(1000))
       }
 
-  private def sendMessage(atms: Array[ActorRef], n: Int) = {
+  private def sendMessage(atms: Array[ActorRef], timestamp: Instant, amount: Int) = {
     import akka.pattern.ask
     implicit val askTimeout: Timeout = Timeout(30 seconds)
 
-    atms(n % atms.length) ? Withdrawal(Instant.now(), n)
+    atms(amount % atms.length) ? Withdrawal(timestamp, amount)
   }
 }
