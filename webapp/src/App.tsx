@@ -1,25 +1,40 @@
+import axios from 'axios'
+import * as  L from 'leaflet';
 import * as React from 'react';
 // @ts-ignore
-import {Map, Marker, Popup, TileLayer} from "react-leaflet";
+import {Icon, Map, Marker, Popup, TileLayer} from "react-leaflet";
 import './App.css';
 import {Event, Props} from './Event'
 
-interface State {
-    lat: number,
-    lng: number,
-    zoom: number
-    events: Props[]
+interface Atm {
+    location: number[]
+    name: string
 }
 
+interface State {
+    atms: Atm[]
+    events: Props[]
+    zoom: number
+}
+
+const cracowLocation = [50.06143, 19.944544];
+
+const icon = L.icon({
+    iconRetinaUrl: 'notes-x2.png',
+    iconSize: [48, 48], // size of the icon,
+    iconUrl: 'notes.png'
+});
+
 class App extends React.Component<any, State> {
+
     public state: State = {
+        atms: [],
         events: [],
-        lat: 50.059683,
-        lng: 19.944544,
         zoom: 14
     };
 
     public componentDidMount(): void {
+        this.loadAtms();
         const websocket = new WebSocket("ws://localhost:8080/websocket");
         websocket.onmessage = (m) => this.setState((s) => {
             return {...s, events: [JSON.parse(m.data), ...s.events]}
@@ -27,28 +42,50 @@ class App extends React.Component<any, State> {
     }
 
     public render() {
-        const position = [this.state.lat, this.state.lng];
         return (
             <div className="App">
                 <div className="map-with-events">
-                    <Map center={position} zoom={this.state.zoom}>
+                    <Map center={cracowLocation} zoom={this.state.zoom}>
                         <TileLayer
                             attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
-                        <Marker position={position}>
-                            <Popup>
-                                A pretty CSS3 popup. <br/> Easily customizable.
-                            </Popup>
-                        </Marker>
+                        {this.atms()}
+
                     </Map>
-                    <div className="events">
-                        {this.state.events
-                            .map((m: Props, i) => <Event key={i} eventData={m}/>)
-                        }
+                    <div className="Events">
+                        <div className="Events-banner">
+                            Events
+                        </div>
+                        <div className="Events-container">
+                            {this.state.events
+                                .map((m: Props, i) => <Event key={i} eventData={m}/>)
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
+        );
+    }
+
+    private loadAtms() {
+        axios.get('atms.json')
+            .then(r => {
+                const atms = r.data.atms;
+
+                this.setState(s => {
+                    return {...s, atms}
+                })
+            });
+    }
+
+    private atms() {
+        return this.state.atms.map((a) =>
+            <Marker key={a.name} position={a.location} icon={icon}>
+                <Popup>
+                    Atm: {a.name}
+                </Popup>
+            </Marker>
         );
     }
 }

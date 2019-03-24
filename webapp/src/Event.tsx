@@ -13,7 +13,6 @@ export interface EventData {
 }
 
 export function Event(eventData: EventData) {
-    console.log(eventData);
     const data = eventData.eventData;
     const eventHeader = data.eventType.charAt(0).toUpperCase() + data.eventType.substr(1);
     const eventDate = new Date(parseInt(data.time, undefined)).toLocaleString();
