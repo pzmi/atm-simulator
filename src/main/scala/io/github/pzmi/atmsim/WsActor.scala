@@ -5,7 +5,6 @@ import akka.actor.{Actor, ActorLogging, Props}
 
 object WsActor {
   def props(): Props = {
-
     Props(new WsActor())
   }
 }
