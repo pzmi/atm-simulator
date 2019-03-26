@@ -6,10 +6,10 @@ import java.time.Instant
 import java.util.concurrent.Executors
 
 import akka.Done
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.stream.scaladsl.{FileIO, Source, SourceQueueWithComplete}
 import akka.stream.{Materializer, OverflowStrategy}
-import akka.util.ByteString
+import akka.util.{ByteString, Timeout}
 import org.json4s._
 import org.json4s.jackson.Serialization.write
 
@@ -18,7 +18,7 @@ import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor}
 
 object OutputActor {
 
-  def props()(implicit materializer: Materializer): Props = {
+  def props(sideEffects: ActorRef)(implicit materializer: Materializer): Props = {
     implicit val formats: AnyRef with Formats = DefaultFormats + InstantSerializer
 
     val output = FileIO.toPath(Paths.get("output.txt"), Set(WRITE, TRUNCATE_EXISTING, CREATE))
@@ -32,15 +32,19 @@ object OutputActor {
       .run()
 
 
-    Props(new OutputActor(queue))
+    Props(new OutputActor(queue, sideEffects))
   }
 }
 
-class OutputActor(queue: SourceQueueWithComplete[Event]) extends Actor with ActorLogging {
+class OutputActor(queue: SourceQueueWithComplete[Event], sideEffects: ActorRef) extends Actor with ActorLogging {
   implicit val executionContext: ExecutionContextExecutor = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
 
   override def receive: Receive = {
     case e: Event =>
+      import akka.pattern.ask
+      implicit val askTimeout: Timeout = Timeout(30 seconds)
+      Await.result(sideEffects ? e, 10 seconds)
+
       Await.result(queue.offer(e), 10 seconds)
       sender() ! Done
     case c: Complete =>

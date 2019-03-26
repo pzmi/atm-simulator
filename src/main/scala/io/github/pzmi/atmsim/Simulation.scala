@@ -35,7 +35,8 @@ object Simulation extends StrictLogging {
   }
 
   private def prepareActors(numberOfAtms: Int)(implicit materializer: Materializer) = {
-    val outputActor = system.actorOf(OutputActor.props(), "output")
+    val sideEffects = system.actorOf(SideEffectsActor.props(), "side-effects")
+    val outputActor = system.actorOf(OutputActor.props(sideEffects), "output")
     val atms: Array[ActorRef] = prepareAtms(numberOfAtms, outputActor)
     (outputActor, atms)
   }
@@ -60,13 +61,13 @@ object Simulation extends StrictLogging {
     Source(0 to numberOfEvents)
       .scan(startDate.toInstant(ZoneOffset.UTC))((acc, _) => acc.plusSeconds(10))
       .mapAsync(Runtime.getRuntime.availableProcessors()) {
-        i: Instant => sendMessage(atms, i, Random.nextInt(1000))
+        i: Instant => sendMessage(atms, i, 10000, atms(Random.nextInt(1000) % atms.length))
       }
 
-  private def sendMessage(atms: Array[ActorRef], timestamp: Instant, amount: Int) = {
+  private def sendMessage(atms: Array[ActorRef], timestamp: Instant, amount: Int, destination: ActorRef) = {
     import akka.pattern.ask
     implicit val askTimeout: Timeout = Timeout(30 seconds)
 
-    atms(amount % atms.length) ? Withdrawal(timestamp, amount)
+    destination ? Withdrawal(timestamp, amount)
   }
 }
