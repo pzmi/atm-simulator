@@ -61,10 +61,10 @@ object Simulation extends StrictLogging {
     Source(0 to numberOfEvents)
       .scan(startDate.toInstant(ZoneOffset.UTC))((acc, _) => acc.plusSeconds(10))
       .mapAsync(Runtime.getRuntime.availableProcessors()) {
-        i: Instant => sendMessage(atms, i, 10000, atms(Random.nextInt(1000) % atms.length))
+        i: Instant => sendMessage(i, 10000, atms(Random.nextInt(1000) % atms.length))
       }
 
-  private def sendMessage(atms: Array[ActorRef], timestamp: Instant, amount: Int, destination: ActorRef) = {
+  private def sendMessage(timestamp: Instant, amount: Int, destination: ActorRef) = {
     import akka.pattern.ask
     implicit val askTimeout: Timeout = Timeout(30 seconds)
 
