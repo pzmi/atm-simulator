@@ -2,6 +2,7 @@ package io.github.pzmi.atmsim
 
 import java.time.{Instant, LocalDateTime, ZoneOffset}
 
+import akka.NotUsed
 import akka.actor.ActorRef
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
@@ -24,9 +25,10 @@ object Simulation extends StrictLogging {
     Random.setSeed(randomSeed)
 
     val (outputActor, atms) = prepareActors(numberOfAtms)
-    val stream = eventsGeneratorStreamWith(atms, numberOfEvents, startDate)
+    val generatorActor = system.actorOf(
+      GeneratorActor.props(atms, numberOfAtms, startDate, outputActor), "generator")
+    generatorActor ! StartGeneration()
 
-    start(outputActor, stream)
     sys.addShutdownHook({
       logger.info("Shutting down")
       outputActor ! Complete
@@ -44,30 +46,5 @@ object Simulation extends StrictLogging {
   private def prepareAtms(numberOfAtms: Int, outputActor: ActorRef) = {
     (1 to numberOfAtms)
       .map(n => system.actorOf(AtmActor.props(outputActor), s"atm-${n.toString}")).toArray
-  }
-
-  private def start(outputActor: ActorRef, stream: Source[Any, Any])(implicit materializer: Materializer,
-                                                                     executionContext: ExecutionContext): Unit = {
-    val startTime = Instant.now()
-    logger.info("Starting simulation")
-    stream
-      .runWith(Sink.ignore)
-      .onComplete(_ => outputActor ! Complete(startTime))
-  }
-
-  private def eventsGeneratorStreamWith(atms: Array[ActorRef],
-                                        numberOfEvents: Int,
-                                        startDate: LocalDateTime): Source[Any, Any] =
-    Source(0 to numberOfEvents)
-      .scan(startDate.toInstant(ZoneOffset.UTC))((acc, _) => acc.plusSeconds(10))
-      .mapAsync(Runtime.getRuntime.availableProcessors()) {
-        i: Instant => sendMessage(i, 10000, atms(Random.nextInt(1000) % atms.length))
-      }
-
-  private def sendMessage(timestamp: Instant, amount: Int, destination: ActorRef) = {
-    import akka.pattern.ask
-    implicit val askTimeout: Timeout = Timeout(30 seconds)
-
-    destination ? Withdrawal(timestamp, amount)
   }
 }
