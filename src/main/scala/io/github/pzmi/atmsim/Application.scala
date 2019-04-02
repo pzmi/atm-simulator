@@ -17,7 +17,7 @@ import scala.language.postfixOps
 
 object Application extends App with ActorModule with ServerModule with StrictLogging {
   val startDate = LocalDateTime.of(LocalDate.of(2019, 3, 3), LocalTime.of(11, 11))
-  Simulation.start(1L, 1000, 100, startDate)
+  Simulation.start(1L, 1000, 100, startDate, startDate.plusHours(24*356))
 
   val appRoute = getFromResource("webapp/index.html")
   val staticRoute = pathPrefix("static")(getFromResourceDirectory("webapp/static"))

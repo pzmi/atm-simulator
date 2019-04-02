@@ -1,12 +1,9 @@
 package io.github.pzmi.atmsim
 
-import java.time.{Instant, LocalDateTime, ZoneOffset}
+import java.time.LocalDateTime
 
-import akka.NotUsed
 import akka.actor.ActorRef
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Sink, Source}
-import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
 import io.github.pzmi.atmsim.Application.system
 
@@ -20,13 +17,14 @@ object Simulation extends StrictLogging {
   def start(randomSeed: Long,
             numberOfAtms: Int,
             numberOfEvents: Int,
-            startDate: LocalDateTime)(implicit materializer: Materializer,
+            startDate: LocalDateTime,
+            endDate: LocalDateTime)(implicit materializer: Materializer,
                                       executionContext: ExecutionContext): Unit = {
     Random.setSeed(randomSeed)
 
     val (outputActor, atms) = prepareActors(numberOfAtms)
     val generatorActor = system.actorOf(
-      GeneratorActor.props(atms, numberOfAtms, startDate, outputActor), "generator")
+      GeneratorActor.props(atms, numberOfEvents, startDate, endDate, outputActor), "generator")
     generatorActor ! StartGeneration()
 
     sys.addShutdownHook({

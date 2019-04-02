@@ -23,14 +23,13 @@ object OutputActor {
 
     val output = FileIO.toPath(Paths.get("output.txt"), Set(WRITE, TRUNCATE_EXISTING, CREATE))
 
-    val queue = Source.queue[Event](1000000, OverflowStrategy.backpressure)
-      .groupedWithin(10000, 1 second)
+    val queue = Source.queue[Event](10000000, OverflowStrategy.backpressure)
+      .groupedWithin(100000, 10 second)
       .flatMapMerge(1, e => Source(e.sortBy(a => a.time)))
       .map(e => write(e))
       .map(json => ByteString(json + System.lineSeparator()))
       .to(output)
       .run()
-
 
     Props(new OutputActor(queue, sideEffects))
   }
