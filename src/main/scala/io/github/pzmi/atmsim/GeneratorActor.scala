@@ -1,6 +1,5 @@
 package io.github.pzmi.atmsim
 
-import java.time.temporal.ChronoUnit
 import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import akka.NotUsed
@@ -35,7 +34,7 @@ object GeneratorActor {
 
     val timeIterator: Iterator[Instant] = Iterator.iterate(startDate)(d => d.plusHours(1))
       .takeWhile(i => !i.isAfter(endDate))
-        .map(d => d.toInstant(TimeZone))
+      .map(d => d.toInstant(TimeZone))
     Source.fromIterator(() => timeIterator)
       .flatMapConcat(i => Source(0 to eventsPerHour).map(_ => i))
   }
@@ -57,8 +56,8 @@ class GeneratorActor(private val atms: Array[ActorRef],
     log.info("Starting simulation")
     stream
       .mapAsync(Runtime.getRuntime.availableProcessors()) {
-      i: Instant => sendMessage(i, 10000, atms(Random.nextInt(1000) % atms.length))
-    }.runWith(Sink.ignore)
+        i: Instant => sendMessage(i, 10000, atms(Random.nextInt(1000) % atms.length))
+      }.runWith(Sink.ignore)
       .onComplete(_ => outputActor ! Complete(generatorStartTime))
   }
 
