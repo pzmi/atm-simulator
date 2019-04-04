@@ -36,7 +36,7 @@ object GeneratorActor {
       .takeWhile(i => !i.isAfter(endDate))
       .map(d => d.toInstant(TimeZone))
     Source.fromIterator(() => timeIterator)
-      .flatMapConcat(i => Source(0 to eventsPerHour).map(_ => i))
+      .flatMapConcat(i => Source(0 until eventsPerHour).map(_ => i))
   }
 }
 

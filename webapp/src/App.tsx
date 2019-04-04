@@ -35,12 +35,21 @@ class App extends React.Component<any, State> {
         zoom: 14
     };
 
+    private websocket;
+
     public componentDidMount(): void {
         this.loadAtms();
-        const websocket = new WebSocket("ws://localhost:8080/websocket");
-        websocket.onmessage = (m) => this.setState((s) => {
-            return {...s, events: [JSON.parse(m.data), ...s.events]}
-        });
+        this.websocket = new WebSocket("ws://localhost:8080/websocket");
+        this.websocket.onopen = () => this.websocket.send("hello");
+        this.websocket.onmessage = (m) => {
+            if (m.data === "ping") {
+                console.log("ping")
+            } else {
+                const events = JSON.parse(m.data);
+                this.addEvent(events, 0);
+
+            }
+        }
     }
 
     public render() {
@@ -68,6 +77,19 @@ class App extends React.Component<any, State> {
                 </div>
             </div>
         );
+    }
+
+    private addEvent(events, index: number) {
+        window.setTimeout(() => {
+            this.setState((s) => {
+                return {...s, events: [events[index], ...s.events]}
+            });
+            if (index < events.length - 1) {
+                window.setTimeout(() => this.addEvent(events, index + 1), 10);
+            } else {
+                this.websocket.send("Batch finished")
+            }
+        }, 100);
     }
 
     private loadAtms() {

@@ -7,7 +7,7 @@ import akka.actor.ActorRef
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.http.scaladsl.server.Directives._
-import akka.stream.scaladsl.{FileIO, Framing, Sink}
+import akka.stream.scaladsl.{FileIO, Framing, Sink, Source}
 import akka.util.{ByteString, Timeout}
 import com.typesafe.scalalogging.StrictLogging
 
@@ -17,12 +17,15 @@ import scala.language.postfixOps
 
 object Application extends App with ActorModule with ServerModule with StrictLogging {
   val startDate = LocalDateTime.of(LocalDate.of(2019, 3, 3), LocalTime.of(11, 11))
-  Simulation.start(1L, 1000, 100, startDate, startDate.plusHours(24*356))
+  val days = 1
+  private val hoursPerDay = 24
+  Simulation.start(1L, 1000, 1, startDate, startDate.plusHours(hoursPerDay * days))
 
   val appRoute = getFromResource("webapp/index.html")
   val staticRoute = pathPrefix("static")(getFromResourceDirectory("webapp/static"))
 
-  var fromClientSink = Sink.foreach((m: Message) => logger.info(s"Message: $m"))
+  var fromClientSink = Sink
+    .foreach((m: Message) => logger.info(s"Message received from client: $m"))
 
   private val wsActorRef: ActorRef = system.actorOf(WsActor.props())
   var wsActorSink = Sink.foreachAsync(1) { m: Message =>
@@ -32,7 +35,7 @@ object Application extends App with ActorModule with ServerModule with StrictLog
     (wsActorRef ? m).map(_ => ())
   }
 
-  //  var outSource = Source.tick(1 second, 1 second, TextMessage("ping"))
+  var pingSource = Source.tick(1 second, 10 second, TextMessage("ping"))
 
   private def fileSource = {
     val file = Paths.get("output.txt")
@@ -40,14 +43,19 @@ object Application extends App with ActorModule with ServerModule with StrictLog
       .via(Framing
         .delimiter(ByteString("\n"), 4096, allowTruncation = true)
         .map(_.utf8String))
+      .grouped(100)
+      .map(_.mkString(","))
+      .map(concatenated => s"[$concatenated]")
+      .wireTap(_ => logger.info("Sending message to client"))
       .map(TextMessage(_))
-  }
+      .merge(pingSource)
 
+  }
 
   val websocket = path("websocket") {
     extractUpgradeToWebSocket { upgrade =>
       val toClientSource = fileSource
-      complete(upgrade.handleMessagesWithSinkSource(wsActorSink, toClientSource))
+      complete(upgrade.handleMessagesWithSinkSource(fromClientSink, fileSource))
     }
   }
 
