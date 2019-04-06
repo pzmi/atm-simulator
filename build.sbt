@@ -5,7 +5,7 @@ version := "0.1"
 scalaVersion := "2.12.8"
 
 val AkkaHttpVersion = "10.1.7"
-val AkkaVersion = "2.5.20"
+val AkkaVersion = "2.5.22"
 
 libraryDependencies ++= Seq(
   "com.github.pureconfig" %% "pureconfig" % "0.10.1",

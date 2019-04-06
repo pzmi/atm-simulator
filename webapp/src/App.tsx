@@ -17,6 +17,7 @@ interface State {
     atms: Atm[]
     events: Props[]
     zoom: number
+    interval: number
 }
 
 const cracowLocation = [50.06143, 19.944544];
@@ -32,6 +33,7 @@ class App extends React.Component<any, State> {
     public state: State = {
         atms: [],
         events: [],
+        interval: 10,
         zoom: 14
     };
 
@@ -85,11 +87,11 @@ class App extends React.Component<any, State> {
                 return {...s, events: [events[index], ...s.events]}
             });
             if (index < events.length - 1) {
-                window.setTimeout(() => this.addEvent(events, index + 1), 10);
+                window.setTimeout(() => this.addEvent(events, index + 1), this.state.interval);
             } else {
                 this.websocket.send("Batch finished")
             }
-        }, 100);
+        }, this.state.interval);
     }
 
     private loadAtms() {
