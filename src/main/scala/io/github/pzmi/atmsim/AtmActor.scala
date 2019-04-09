@@ -23,22 +23,32 @@ class AtmActor(output: ActorRef) extends Actor with ActorLogging {
   private def outOfMoney: Receive = {
     case w: Withdrawal => sendToOutputAndAck(0, w)
       sendToOutputAndAck(0, OutOfMoney(w.time))
+    case r: Refill => val newBalance: Int = calculateBalance(0, r)
+      sendToOutputAndAck(newBalance, r)
   }
 
   private def operational(currentBalance: Int): Receive = {
-    case w: Withdrawal =>
+    case w: Withdrawal | Refill =>
       val newBalance: Int = calculateBalance(currentBalance, w)
       sendToOutputAndAck(newBalance, w)
   }
 
-  private def calculateBalance(currentBalance: Int, w: Withdrawal): Int =
-    currentBalance - w.amount match {
-      case newBalance if newBalance < 0 => sendToOutputAndAck(currentBalance, NotEnoughMoney(w.time))
+  private def calculateBalance(currentBalance: Int, e: Event): Int =
+    e match {
+      case Withdrawal(_, amount, _, _, _) => calculateBalance(currentBalance, -amount, e)
+      case Refill(_, _, _, amount, _) => calculateBalance(currentBalance, amount, e)
+    }
+
+  private def calculateBalance(currentBalance: Int, amount: Int, e: Event): Int =
+    currentBalance + amount match {
+      case newBalance if newBalance < 0 => sendToOutputAndAck(currentBalance, NotEnoughMoney(e.time))
         currentBalance
-      case newBalance if newBalance == 0 => sendToOutputAndAck(newBalance, OutOfMoney(w.time))
+      case newBalance if newBalance == 0 => sendToOutputAndAck(newBalance, OutOfMoney(e.time))
         context.become(outOfMoney)
         newBalance
-      case newBalance if newBalance > 0 => newBalance
+      case newBalance if newBalance > 0 =>
+        context.become(operational(newBalance))
+        newBalance
     }
 
   private def sendToOutputAndAck(newBalance: Int, event: Event): Unit = {
@@ -54,6 +64,7 @@ class AtmActor(output: ActorRef) extends Actor with ActorLogging {
       case w: Withdrawal => w.copy(balance = newBalance, atm = name)
       case o: OutOfMoney => o.copy(atm = name)
       case n: NotEnoughMoney => n.copy(atm = name)
+      case r: Refill => r.copy(balance = newBalance, atm = name)
       case _: Event => throw new IllegalStateException("Event is not a correct event")
     }
   }
@@ -77,3 +88,8 @@ case class NotEnoughMoney(override val time: Instant,
                           override val atm: String = "unknown",
                           override val eventType: String = "not-enough-money") extends Event(time, eventType, atm)
 
+case class Refill(override val time: Instant,
+                  override val atm: String = "unknown",
+                  override val eventType: String = "refill",
+                  amount: Int,
+                  balance: Int = 0) extends Event(time, eventType, atm)

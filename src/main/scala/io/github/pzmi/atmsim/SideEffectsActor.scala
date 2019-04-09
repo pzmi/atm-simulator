@@ -23,8 +23,7 @@ class SideEffectsActor() extends Actor with ActorLogging {
         eventsQueue
           .headOption
           .flatMap(e => if (time.isAfter(e.when)) Some(eventsQueue.dequeue()) else Option.empty)
-//          .foreach(e => e.event.atm) TODO: actor ref from atm name, send message
-//          .foreach(e => log.info(s"Event from side effect $e"))
+          .foreach(e => context.actorSelection(s"../${e.event.atm}") ! Refill(10000))
       }
     case e: OutOfMoney =>
       resp { _ => eventsQueue.enqueue(SideEffectEvent(e.time.plusSeconds(10), e))
