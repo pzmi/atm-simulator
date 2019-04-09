@@ -18,7 +18,7 @@ object Application extends App with ActorModule with ServerModule with StrictLog
   val startDate = LocalDateTime.of(LocalDate.of(2019, 3, 3), LocalTime.of(11, 11))
   val days = 1
   private val hoursPerDay = 24
-  Simulation.start(1L, 1000, 100, startDate, startDate.plusHours(hoursPerDay * days))
+  Simulation.start(1L, 1000, 1000, startDate, startDate.plusHours(hoursPerDay * days))
 
   val appRoute = getFromResource("webapp/index.html")
   val staticRoute = pathPrefix("static")(getFromResourceDirectory("webapp/static"))

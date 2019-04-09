@@ -3,7 +3,7 @@ package io.github.pzmi.atmsim
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption.{CREATE, TRUNCATE_EXISTING, WRITE}
 import java.time.Instant
-import java.util.concurrent.Executors
+import java.util.concurrent.{Executors, TimeUnit}
 
 import akka.Done
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
@@ -46,19 +46,19 @@ class OutputActor(queue: SourceQueueWithComplete[Event], sideEffects: ActorRef) 
 
       Await.result(queue.offer(e), 10 seconds)
       sender() ! Done
-    case c: Complete =>
+    case Complete(startTimestamp) =>
       import scala.concurrent.duration._
       log.info("Completing")
       queue.complete()
       Await.result(queue.watchCompletion(), 30 seconds)
-      val processingTime = java.time.Duration.between(c.startTime, Instant.now())
-      log.info("Processing time {}", processingTime)
+      val processingTime = System.nanoTime() - startTimestamp
+      log.info("Processing time {} nanoseconds", processingTime)
       log.info("Done")
   }
 
 }
 
-case class Complete(startTime: Instant)
+case class Complete(startTime: Long)
 
 object InstantSerializer extends CustomSerializer[Instant](_ => ( {
   case JString(str) =>

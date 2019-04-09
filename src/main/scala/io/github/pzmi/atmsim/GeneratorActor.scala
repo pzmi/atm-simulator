@@ -52,7 +52,7 @@ class GeneratorActor(private val atms: Array[ActorRef],
 
   private def start(outputActor: ActorRef, stream: Source[Instant, NotUsed])(implicit materializer: Materializer,
                                                                              executionContext: ExecutionContext): Unit = {
-    val generatorStartTime = Instant.now()
+    val generatorStartTime = System.nanoTime()
     log.info("Starting simulation")
     stream
       .mapAsync(Runtime.getRuntime.availableProcessors()) {
