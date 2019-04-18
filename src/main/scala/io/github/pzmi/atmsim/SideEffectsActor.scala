@@ -6,6 +6,11 @@ import akka.Done
 import akka.actor.{Actor, ActorLogging, Props}
 
 import scala.collection.mutable
+import scala.concurrent.Await
+import akka.pattern.ask
+import scala.concurrent.duration._
+
+import akka.util.Timeout
 
 object SideEffectsActor {
   def props(): Props = {
@@ -18,21 +23,23 @@ class SideEffectsActor() extends Actor with ActorLogging {
   private val eventsQueue = mutable.PriorityQueue()
 
   override def receive: Receive = {
-    case Withdrawal(time, _, _, _, _) =>
-      resp { _ =>
-        eventsQueue
-          .headOption
-          .flatMap(e => if (time.isAfter(e.when)) Some(eventsQueue.dequeue()) else Option.empty)
-          .foreach(e => context.actorSelection(s"../${e.event.atm}") ! Refill(10000))
-      }
     case e: OutOfMoney =>
-      resp { _ => eventsQueue.enqueue(SideEffectEvent(e.time.plusSeconds(10), e))
-      }
+      resp { _ => eventsQueue.enqueue(SideEffectEvent(e.time.plusSeconds(10), e)) }
+
+    case TimePassed(t) => resp { _ =>
+      eventsQueue
+        .headOption
+        .flatMap(e => if (t.isAfter(e.when)) Some(eventsQueue.dequeue()) else Option.empty)
+        .map(e => context.actorSelection(s"/user/${e.event.atm}"))
+        .foreach(a => a ! Refill(t, amount = 10000))
+    }
+    case _: Event => resp { _ => }
   }
 
-  private def resp(toResponseAfter: Any => Any): Unit = {
-    toResponseAfter()
+  private def resp[T](toResponseAfter: Any => T): T = {
+    val result = toResponseAfter()
     sender() ! Done
+    result
   }
 }
 

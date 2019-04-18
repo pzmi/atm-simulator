@@ -23,14 +23,22 @@ class AtmActor(output: ActorRef) extends Actor with ActorLogging {
   private def outOfMoney: Receive = {
     case w: Withdrawal => sendToOutputAndAck(0, w)
       sendToOutputAndAck(0, OutOfMoney(w.time))
-    case r: Refill => val newBalance: Int = calculateBalance(0, r)
-      sendToOutputAndAck(newBalance, r)
+    case r: Refill => {
+      handleOperational(0, r)
+    }
   }
 
   private def operational(currentBalance: Int): Receive = {
-    case w: Withdrawal | Refill =>
-      val newBalance: Int = calculateBalance(currentBalance, w)
-      sendToOutputAndAck(newBalance, w)
+    case w: Withdrawal => handleOperational(currentBalance, w)
+    case r: Refill => {
+      handleOperational(currentBalance, r)
+    }
+    case e => throw new IllegalArgumentException(s"Received invalid event $e from ${sender()}")
+  }
+
+  private def handleOperational(currentBalance: Int, event: Event): Unit = {
+    val newBalance: Int = calculateBalance(currentBalance, event)
+    sendToOutputAndAck(newBalance, event)
   }
 
   private def calculateBalance(currentBalance: Int, e: Event): Int =

@@ -14,7 +14,7 @@ import org.json4s._
 import org.json4s.jackson.Serialization.write
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor}
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, TimeoutException}
 
 object OutputActor {
 
@@ -24,8 +24,6 @@ object OutputActor {
     val output = FileIO.toPath(Paths.get("output.txt"), Set(WRITE, TRUNCATE_EXISTING, CREATE))
 
     val queue = Source.queue[Event](10000000, OverflowStrategy.backpressure)
-      .groupedWithin(100000, 10 second)
-      .flatMapMerge(1, e => Source(e.sortBy(a => a.time)))
       .map(e => write(e))
       .map(json => ByteString(json + System.lineSeparator()))
       .to(output)
@@ -42,7 +40,11 @@ class OutputActor(queue: SourceQueueWithComplete[Event], sideEffects: ActorRef) 
     case e: Event =>
       import akka.pattern.ask
       implicit val askTimeout: Timeout = Timeout(30 seconds)
-      Await.result(sideEffects ? e, 10 seconds)
+      try {
+        Await.result(sideEffects ? e, 10 seconds)
+      } catch {
+        case ex: TimeoutException => log.error(s"Timed out on message: ${e}")
+      }
 
       Await.result(queue.offer(e), 10 seconds)
       sender() ! Done
