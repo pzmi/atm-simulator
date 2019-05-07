@@ -12,11 +12,10 @@ import scala.concurrent.duration._
 
 
 object AtmActor {
-  def props(output: ActorRef): Props = Props(new AtmActor(output))
+  def props(output: ActorRef, startingBalance: Int = 10000): Props = Props(new AtmActor(output, startingBalance))
 }
 
-class AtmActor(output: ActorRef) extends Actor with ActorLogging {
-  private val startingBalance: Int = 10000
+class AtmActor(output: ActorRef, startingBalance: Int) extends Actor with ActorLogging {
 
   override def receive: Receive = operational(startingBalance)
 
@@ -45,6 +44,7 @@ class AtmActor(output: ActorRef) extends Actor with ActorLogging {
     e match {
       case Withdrawal(_, amount, _, _, _) => calculateBalance(currentBalance, -amount, e)
       case Refill(_, _, _, amount, _) => calculateBalance(currentBalance, amount, e)
+      case e => throw new IllegalArgumentException(s"Event not handled: $e")
     }
 
   private def calculateBalance(currentBalance: Int, amount: Int, e: Event): Int =

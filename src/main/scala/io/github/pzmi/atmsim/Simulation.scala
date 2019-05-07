@@ -15,16 +15,16 @@ import scala.util.Random
 object Simulation extends StrictLogging {
 
   def start(randomSeed: Long,
-            numberOfAtms: Int,
+            config: Config,
             numberOfEvents: Int,
             startDate: LocalDateTime,
             endDate: LocalDateTime)(implicit materializer: Materializer,
                                       executionContext: ExecutionContext): Unit = {
     Random.setSeed(randomSeed)
 
-    val (outputActor, sideEffects, atms) = prepareActors(numberOfAtms)
+    val (outputActor, sideEffects, atms) = prepareActors(config)
     val generatorActor = system.actorOf(
-      GeneratorActor.props(atms, numberOfEvents, startDate, endDate, outputActor, sideEffects), "generator")
+      GeneratorActor.props(atms, numberOfEvents, startDate, endDate, outputActor, sideEffects, config), "generator")
     generatorActor ! StartGeneration()
 
     sys.addShutdownHook({
@@ -34,15 +34,19 @@ object Simulation extends StrictLogging {
     })
   }
 
-  private def prepareActors(numberOfAtms: Int)(implicit materializer: Materializer) = {
+  private def prepareActors(config: Config)(implicit materializer: Materializer) = {
     val sideEffects = system.actorOf(SideEffectsActor.props(), "side-effects")
     val outputActor = system.actorOf(OutputActor.props(sideEffects), "output")
-    val atms: Array[ActorRef] = prepareAtms(numberOfAtms, outputActor)
-    (outputActor, sideEffects, atms)
+    val atmActors: Array[ActorRef] = prepareAtms(config, outputActor)
+    (outputActor, sideEffects, atmActors)
   }
 
-  private def prepareAtms(numberOfAtms: Int, outputActor: ActorRef) = {
-    (1 to numberOfAtms)
-      .map(n => system.actorOf(AtmActor.props(outputActor), s"atm-${n.toString}")).toArray
+  private def prepareAtms(config: Config, outputActor: ActorRef) = {
+    config.atms
+      .map(atm => system.actorOf(
+        AtmActor.props(outputActor,
+          atm.startingAmount.getOrElse(config.default.amount)),
+        s"atm-${atm.name}"))
+      .toArray
   }
 }

@@ -1,7 +1,7 @@
 package io.github.pzmi.atmsim
 
 import java.nio.file.Paths
-import java.time.{LocalDate, LocalDateTime, LocalTime}
+import java.time.{Instant, LocalDate, LocalDateTime, LocalTime}
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
@@ -9,16 +9,23 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.scaladsl.{FileIO, Flow, Framing, Sink, Source}
 import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging
+import org.json4s.{DefaultFormats, Formats}
+import org.json4s.jackson.Serialization
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 
 object Application extends App with ActorModule with ServerModule with StrictLogging {
+  implicit val formats: AnyRef with Formats = DefaultFormats + InstantSerializer
+
+  private val configString: String = scala.io.Source.fromResource("config.json").getLines.mkString("\n")
+  val config: Config = Serialization.read[Config](configString)
+
   val startDate = LocalDateTime.of(LocalDate.of(2019, 3, 3), LocalTime.of(11, 11))
   val days = 1
   private val hoursPerDay = 24
-  Simulation.start(1L, 1000, 10000, startDate, startDate.plusHours(hoursPerDay * days))
+  Simulation.start(1L, config, 10000, startDate, startDate.plusHours(hoursPerDay * days))
 
   val appRoute = getFromResource("webapp/index.html")
   val staticRoute = pathPrefix("static")(getFromResourceDirectory("webapp/static"))
@@ -65,3 +72,15 @@ object Application extends App with ActorModule with ServerModule with StrictLog
       .onComplete(_ => system.terminate())
   })
 }
+
+case class Config(default: DefaultProperties, atms: List[AtmProperties])
+
+case class DefaultProperties(amount: Int, load: Int)
+
+case class AtmProperties(name: String, location: List[Double],
+                         atmDefaultLoad: Option[Int],
+                         startingAmount: Option[Int],
+                         hourly: Map[String, HourlyProperties] = Map.empty)
+
+
+case class HourlyProperties(load: Int)
