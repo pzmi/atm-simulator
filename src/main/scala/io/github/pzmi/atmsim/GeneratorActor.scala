@@ -82,8 +82,7 @@ class GeneratorActor(private val atms: Array[ActorRef],
           val wc = config.withdrawal
           val amount = wc.distribution match {
             case Normal => ThreadLocalRandom.current().nextInt(wc.min, wc.max)
-            case Gaussian =>
-              Math.max(positiveGaussianRandom() * (wc.max - wc.min) + wc.min, 0).intValue()
+            case Gaussian => positiveGaussianRandom(wc.mean, wc.stddev).intValue()
           }
 
           if (amount > 0) {
@@ -99,8 +98,8 @@ class GeneratorActor(private val atms: Array[ActorRef],
       .onComplete(_ => outputActor ! Complete(generatorStartTime))
   }
 
-  private def positiveGaussianRandom() = {
-    (ThreadLocalRandom.current().nextGaussian() + 1) / 2
+  private def positiveGaussianRandom(mean: Int, stddev: Int) = {
+    Math.max(ThreadLocalRandom.current().nextGaussian() * stddev + mean, 0)
   }
 
   private def sendMessage(timestamp: Instant, amount: Int, destination: ActorSelection) = {

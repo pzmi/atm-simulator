@@ -88,7 +88,7 @@ case class AtmProperties(name: String, location: List[Double],
 
 case class HourlyProperties(load: Int)
 
-case class WithdrawalProperties(min: Int, max: Int, distribution: Distribution)
+case class WithdrawalProperties(min: Int, max: Int, stddev: Int, mean: Int, distribution: Distribution)
 
 sealed abstract class Distribution
 case object Normal extends Distribution
