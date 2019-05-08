@@ -46,7 +46,7 @@ object Simulation extends StrictLogging {
       .map(atm => system.actorOf(
         AtmActor.props(outputActor,
           atm.startingAmount.getOrElse(config.default.amount)),
-        s"atm-${atm.name}"))
+        atm.name))
       .toArray
   }
 }

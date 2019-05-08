@@ -3,6 +3,11 @@
     "amount": 10000,
     "load": 2
   },
+  "withdrawal": {
+    "min": 10,
+    "max": 10000,
+    "distribution": "Gaussian"
+  },
   "atms": [
     {
       "name": 475387316,

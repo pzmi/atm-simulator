@@ -6,11 +6,6 @@ import akka.Done
 import akka.actor.{Actor, ActorLogging, Props}
 
 import scala.collection.mutable
-import scala.concurrent.Await
-import akka.pattern.ask
-import scala.concurrent.duration._
-
-import akka.util.Timeout
 
 object SideEffectsActor {
   def props(): Props = {

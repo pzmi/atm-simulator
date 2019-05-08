@@ -4,20 +4,19 @@ import java.time.{Instant, LocalDateTime, ZoneOffset}
 import java.util.concurrent.ThreadLocalRandom
 
 import akka.NotUsed
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, Props}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
 import akka.util.Timeout
 
-import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
-import scala.util.Random
+import scala.concurrent.{ExecutionContext, Future}
 
 object GeneratorActor {
   private val TimeZone = ZoneOffset.UTC
 
   def hourlyDistributions(config: Config) = {
-    config.atms.map{ atm =>
+    config.atms.map { atm =>
       atm.hourly
     }
   }
@@ -65,7 +64,7 @@ class GeneratorActor(private val atms: Array[ActorRef],
     val generatorStartTime = System.nanoTime()
     log.info("Starting simulation")
     sourceStream.flatMapConcat(i => {
-      val distribution = config.atms.flatMap {atm =>
+      val distribution = config.atms.flatMap { atm =>
         val load = atm.hourly.get(i.toEpochMilli.toString)
           .map(_.load)
           .getOrElse(atm.atmDefaultLoad.getOrElse(config.default.load))
@@ -77,8 +76,21 @@ class GeneratorActor(private val atms: Array[ActorRef],
       val timeFuture: Source[Future[Any], NotUsed] = Source.single(sideEffectsActor ? TimePassed(i))
       val sendFuture: Source[Future[Any], NotUsed] = Source(0 until eventsPerHour).map(_ => i).map {
         timestamp =>
-          val a = ThreadLocalRandom.current().nextInt(1000)
-          sendMessage(timestamp, 10000, atms(a % atms.length))
+          val random = ThreadLocalRandom.current().nextInt(distribution.length)
+          val actorName = distribution(random)
+          val selection = context.actorSelection(s"/user/$actorName")
+          val wc = config.withdrawal
+          val amount = wc.distribution match {
+            case Normal => ThreadLocalRandom.current().nextInt(wc.min, wc.max)
+            case Gaussian =>
+              Math.max(positiveGaussianRandom() * (wc.max - wc.min) + wc.min, 0).intValue()
+          }
+
+          if (amount > 0) {
+            sendMessage(timestamp, amount, selection)
+          } else {
+            Future.successful(None)
+          }
       }
 
       timeFuture.concat(sendFuture)
@@ -87,14 +99,19 @@ class GeneratorActor(private val atms: Array[ActorRef],
       .onComplete(_ => outputActor ! Complete(generatorStartTime))
   }
 
-  private def sendMessage(timestamp: Instant, amount: Int, destination: ActorRef) = {
+  private def positiveGaussianRandom() = {
+    (ThreadLocalRandom.current().nextGaussian() + 1) / 2
+  }
+
+  private def sendMessage(timestamp: Instant, amount: Int, destination: ActorSelection) = {
     import akka.pattern.ask
     implicit val askTimeout: Timeout = Timeout(30 seconds)
+
+    log.debug("Sending message to [{}]", destination)
 
     destination ? Withdrawal(timestamp, amount)
   }
 }
-
 
 case class StartGeneration()
 

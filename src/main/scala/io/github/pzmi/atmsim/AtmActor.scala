@@ -36,6 +36,7 @@ class AtmActor(output: ActorRef, startingBalance: Int) extends Actor with ActorL
   }
 
   private def handleOperational(currentBalance: Int, event: Event): Unit = {
+    log.debug("Received event: [{}]", event)
     val newBalance: Int = calculateBalance(currentBalance, event)
     sendToOutputAndAck(newBalance, event)
   }
