@@ -28,7 +28,13 @@ const icon = L.icon({
     iconUrl: notes
 });
 
+const sideEffects = ["out-of-money", "not-enough-money", "refill"];
+
 class App extends React.Component<any, State> {
+
+    private static isSideEffect(m) {
+        return sideEffects.includes(m.eventType);
+    }
 
     public state: State = {
         atms: [],
@@ -41,14 +47,15 @@ class App extends React.Component<any, State> {
 
     public componentDidMount(): void {
         this.loadAtms();
-        this.websocket = new WebSocket("ws://localhost:8080/websocket");
+        this.websocket = new WebSocket("ws://localhost:8080/websocket/output");
         this.websocket.onopen = () => this.websocket.send("hello");
         this.websocket.onmessage = (m) => {
             if (m.data === "ping") {
                 console.log("ping")
             } else {
                 const events = JSON.parse(m.data);
-                this.addEvent(events, 0);
+                const sideEffectEvents = events.filter(e => App.isSideEffect(e));
+                this.addTosideEffectsBox(sideEffectEvents, 0);
 
             }
         }
@@ -81,13 +88,13 @@ class App extends React.Component<any, State> {
         );
     }
 
-    private addEvent(events, index: number) {
+    private addTosideEffectsBox(events, index: number) {
         window.setTimeout(() => {
             this.setState((s) => {
                 return {...s, events: [events[index], ...s.events]}
             });
             if (index < events.length - 1) {
-                window.setTimeout(() => this.addEvent(events, index + 1), this.state.interval);
+                window.setTimeout(() => this.addTosideEffectsBox(events, index + 1), this.state.interval);
             } else {
                 this.websocket.send("Batch finished")
             }
@@ -95,7 +102,7 @@ class App extends React.Component<any, State> {
     }
 
     private loadAtms() {
-        axios.get('static/atms.json')
+        axios.get('config')
             .then(r => {
                 const atms = r.data.atms;
 

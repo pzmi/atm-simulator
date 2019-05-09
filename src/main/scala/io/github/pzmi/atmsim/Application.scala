@@ -1,18 +1,17 @@
 package io.github.pzmi.atmsim
 
 import java.nio.file.Paths
-import java.time.{Instant, LocalDate, LocalDateTime, LocalTime}
+import java.time.{LocalDate, LocalDateTime, LocalTime}
 
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.scaladsl.{FileIO, Flow, Framing, Sink, Source}
 import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging
-import org.json4s
-import org.json4s.ext.EnumNameSerializer
-import org.json4s.{CustomSerializer, DefaultFormats, Formats, JString}
 import org.json4s.jackson.Serialization
+import org.json4s.{CustomSerializer, DefaultFormats, Formats, JString}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -24,12 +23,23 @@ object Application extends App with ActorModule with ServerModule with StrictLog
   private val configString: String = scala.io.Source.fromResource("config.json").getLines.mkString("\n")
   val config: Config = Serialization.read[Config](configString)
 
-  val startDate = LocalDateTime.of(LocalDate.of(2019, 3, 3), LocalTime.of(11, 11))
-  val days = 1
-  private val hoursPerDay = 24
-  Simulation.start(1L, config, 1, startDate, startDate.plusHours(hoursPerDay * days))
-
   val appRoute = getFromResource("webapp/index.html")
+  val configRoute = path("config") {
+    get {
+      complete(HttpEntity(ContentTypes.`application/json`, Serialization.write[Config](config)))
+    }
+  }
+
+  val simulationRoute = path("simulation" / Segment) { fileName =>
+    post {
+      val startDate = LocalDateTime.of(LocalDate.of(2019, 3, 3), LocalTime.of(11, 11))
+      val days = 10
+      val hoursPerDay = 24
+      Simulation.start(1L, config, 10000, startDate, startDate.plusHours(hoursPerDay * days), fileName)
+      complete(StatusCodes.NoContent)
+    }
+  }
+
   val staticRoute = pathPrefix("static")(getFromResourceDirectory("webapp/static"))
 
   var fromClientSink = Sink
@@ -37,34 +47,35 @@ object Application extends App with ActorModule with ServerModule with StrictLog
 
   var pingSource = Source.tick(1 second, 10 second, TextMessage("ping"))
 
-  private def fileSource = {
-    val file = Paths.get("output.txt")
-    FileIO.fromPath(file)
-      .via(Framing
-        .delimiter(ByteString("\n"), 4096, allowTruncation = true)
-        .map(_.utf8String))
-      .grouped(1000)
-      .map(_.mkString(","))
-      .map(concatenated => s"[$concatenated]")
-      .wireTap(_ => logger.info("Sending message to client"))
-      .map(TextMessage(_))
-      .merge(pingSource)
-  }
 
-  private val onDemandDataFlow = Flow[Message]
-    .zip(fileSource)
-    .wireTap(m => logger.info(s"Message received from client: ${m._1}"))
-    .map(_._2)
 
-  val websocket = path("websocket") {
+  val websocket = path("websocket" / Segment) { fileName =>
     extractUpgradeToWebSocket { upgrade =>
+      def fileSource = {
+      val file = Paths.get(s"$fileName.log")
+      FileIO.fromPath(file)
+        .via(Framing
+          .delimiter(ByteString("\n"), 4096, allowTruncation = true)
+          .map(_.utf8String))
+        .grouped(1000)
+        .map(_.mkString(","))
+        .map(concatenated => s"[$concatenated]")
+        .wireTap(_ => logger.info("Sending message to client"))
+        .map(TextMessage(_))
+        .merge(pingSource)
+    }
+
+      val onDemandDataFlow = Flow[Message]
+        .zip(fileSource)
+        .wireTap(m => logger.info(s"Message received from client: ${m._1}"))
+        .map(_._2)
       complete(upgrade.handleMessages(onDemandDataFlow))
     }
   }
 
   private val host = "localhost"
   private val port = 8080
-  val bindingFuture = Http().bindAndHandle(websocket ~ staticRoute ~ appRoute, host, port)
+  val bindingFuture = Http().bindAndHandle(websocket ~ simulationRoute ~ configRoute ~ staticRoute ~ appRoute, host, port)
 
   logger.info(s"Starting server on http://$host:$port")
 

@@ -18,10 +18,10 @@ import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Time
 
 object OutputActor {
 
-  def props(sideEffects: ActorRef)(implicit materializer: Materializer): Props = {
+  def props(sideEffects: ActorRef, fileName: String)(implicit materializer: Materializer): Props = {
     implicit val formats: AnyRef with Formats = DefaultFormats + InstantSerializer
 
-    val output = FileIO.toPath(Paths.get("output.txt"), Set(WRITE, TRUNCATE_EXISTING, CREATE))
+    val output = FileIO.toPath(Paths.get(s"$fileName.log"), Set(WRITE, TRUNCATE_EXISTING, CREATE))
 
     val queue = Source.queue[Event](10000000, OverflowStrategy.backpressure)
       .map(e => write(e))
@@ -54,7 +54,9 @@ class OutputActor(queue: SourceQueueWithComplete[Event], sideEffects: ActorRef) 
       queue.complete()
       Await.result(queue.watchCompletion(), 30 seconds)
       val processingTime = System.nanoTime() - startTimestamp
-      log.info("Processing time {} nanoseconds", processingTime)
+      log.info("Processing time {} nanoseconds = {} seconds",
+        processingTime,
+        TimeUnit.NANOSECONDS.toSeconds(processingTime))
       log.info("Done")
   }
 

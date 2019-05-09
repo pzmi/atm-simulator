@@ -16,15 +16,16 @@ object Simulation extends StrictLogging {
 
   def start(randomSeed: Long,
             config: Config,
-            numberOfEvents: Int,
+            eventsPerHour: Int,
             startDate: LocalDateTime,
-            endDate: LocalDateTime)(implicit materializer: Materializer,
+            endDate: LocalDateTime,
+           fileName: String)(implicit materializer: Materializer,
                                       executionContext: ExecutionContext): Unit = {
     Random.setSeed(randomSeed)
 
-    val (outputActor, sideEffects, atms) = prepareActors(config)
+    val (outputActor, sideEffects, atms) = prepareActors(config, fileName)
     val generatorActor = system.actorOf(
-      GeneratorActor.props(atms, numberOfEvents, startDate, endDate, outputActor, sideEffects, config), "generator")
+      GeneratorActor.props(atms, eventsPerHour, startDate, endDate, outputActor, sideEffects, config), "generator")
     generatorActor ! StartGeneration()
 
     sys.addShutdownHook({
@@ -34,9 +35,9 @@ object Simulation extends StrictLogging {
     })
   }
 
-  private def prepareActors(config: Config)(implicit materializer: Materializer) = {
+  private def prepareActors(config: Config, fileName: String)(implicit materializer: Materializer) = {
     val sideEffects = system.actorOf(SideEffectsActor.props(), "side-effects")
-    val outputActor = system.actorOf(OutputActor.props(sideEffects), "output")
+    val outputActor = system.actorOf(OutputActor.props(sideEffects, fileName), "output")
     val atmActors: Array[ActorRef] = prepareAtms(config, outputActor)
     (outputActor, sideEffects, atmActors)
   }

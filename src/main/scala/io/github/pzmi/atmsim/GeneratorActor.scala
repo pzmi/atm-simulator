@@ -22,7 +22,7 @@ object GeneratorActor {
   }
 
   def props(atms: Array[ActorRef],
-            numberOfEvents: Int,
+            eventsPerHour: Int,
             startDate: LocalDateTime,
             endDate: LocalDateTime,
             outputActor: ActorRef,
@@ -32,7 +32,7 @@ object GeneratorActor {
     val sourceStream = eventsGeneratorStreamWith(atms, startDate, endDate)
 
 
-    Props(new GeneratorActor(atms, sourceStream, outputActor, sideEffectsActor, numberOfEvents, config))
+    Props(new GeneratorActor(atms, sourceStream, outputActor, sideEffectsActor, eventsPerHour, config))
   }
 
   private def eventsGeneratorStreamWith(atms: Array[ActorRef],
