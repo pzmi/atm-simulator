@@ -1,6 +1,7 @@
 {
   "default": {
-    "amount": 10000,
+    "refillAmount": 10000,
+    "refillDelayHours": 5,
     "load": 2
   },
   "withdrawal": {
@@ -17,11 +18,12 @@
         50.0622357,
         19.9359087
       ],
-      "startingAmount": 50000,
+      "refillAmount": 50000,
+      "refillDelayHours": 5,
       "atmDefaultLoad": 3,
       "hourly": {
         "1551611460000": {
-          "load": 3
+          "load": 5
         }
       }
     },

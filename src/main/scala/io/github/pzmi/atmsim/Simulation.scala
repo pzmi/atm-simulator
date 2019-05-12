@@ -36,7 +36,7 @@ object Simulation extends StrictLogging {
   }
 
   private def prepareActors(config: Config, fileName: String)(implicit materializer: Materializer) = {
-    val sideEffects = system.actorOf(SideEffectsActor.props(), "side-effects")
+    val sideEffects = system.actorOf(SideEffectsActor.props(config), "side-effects")
     val outputActor = system.actorOf(OutputActor.props(sideEffects, fileName), "output")
     val atmActors: Array[ActorRef] = prepareAtms(config, outputActor)
     (outputActor, sideEffects, atmActors)
@@ -46,7 +46,7 @@ object Simulation extends StrictLogging {
     config.atms
       .map(atm => system.actorOf(
         AtmActor.props(outputActor,
-          atm.startingAmount.getOrElse(config.default.amount)),
+          atm.refillAmount.getOrElse(config.default.refillAmount)),
         atm.name))
       .toArray
   }

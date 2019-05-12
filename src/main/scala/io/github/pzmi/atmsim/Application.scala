@@ -35,7 +35,7 @@ object Application extends App with ActorModule with ServerModule with StrictLog
       val startDate = LocalDateTime.of(LocalDate.of(2019, 3, 3), LocalTime.of(11, 11))
       val days = 10
       val hoursPerDay = 24
-      Simulation.start(1L, config, 10000, startDate, startDate.plusHours(hoursPerDay * days), fileName)
+      Simulation.start(1L, config, 100, startDate, startDate.plusHours(hoursPerDay * days), fileName)
       complete(StatusCodes.NoContent)
     }
   }
@@ -89,11 +89,12 @@ object Application extends App with ActorModule with ServerModule with StrictLog
 case class Config(default: DefaultProperties, withdrawal: WithdrawalProperties,
                   atms: List[AtmProperties])
 
-case class DefaultProperties(amount: Int, load: Int)
+case class DefaultProperties(refillAmount: Int, refillDelayHours: Int, load: Int)
 
 case class AtmProperties(name: String, location: List[Double],
                          atmDefaultLoad: Option[Int],
-                         startingAmount: Option[Int],
+                         refillAmount: Option[Int],
+                         refillDelayHours: Option[Int],
                          hourly: Map[String, HourlyProperties] = Map.empty)
 
 
