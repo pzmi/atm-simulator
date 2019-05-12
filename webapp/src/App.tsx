@@ -2,18 +2,28 @@ import axios from 'axios'
 import * as  L from 'leaflet';
 import * as React from 'react';
 // @ts-ignore
-import {Icon, Map, Marker, Popup, TileLayer} from "react-leaflet";
+import {Map, Marker, Popup, TileLayer} from "react-leaflet";
 import './App.css';
+import AtmPopup from "./AtmPopup";
 import {Event, Props} from './Event'
 import notesBig from './notes-x2.png'
 import notes from './notes.png'
 
-interface Atm {
+interface HourlyAtm {
+    load: number
+}
+
+export interface Atm {
     location: number[]
     name: string
+    refillAmount: number
+    refillDelayHours: number
+    atmDefaultLoad: number
+    hourly: { string: HourlyAtm }
 }
 
 interface State {
+    readonly config: object
     atms: Atm[]
     events: Props[]
     zoom: number
@@ -30,6 +40,8 @@ const icon = L.icon({
 
 const sideEffects = ["out-of-money", "not-enough-money", "refill"];
 
+const server = "localhost:8080";
+
 class App extends React.Component<any, State> {
 
     private static isSideEffect(m) {
@@ -38,6 +50,7 @@ class App extends React.Component<any, State> {
 
     public state: State = {
         atms: [],
+        config: {},
         events: [],
         interval: 10,
         zoom: 14
@@ -46,8 +59,8 @@ class App extends React.Component<any, State> {
     private websocket;
 
     public componentDidMount(): void {
-        this.loadAtms();
-        this.websocket = new WebSocket("ws://localhost:8080/websocket/output");
+        this.loadConfig();
+        this.websocket = new WebSocket(`ws://${server}/websocket/output`);
         this.websocket.onopen = () => this.websocket.send("hello");
         this.websocket.onmessage = (m) => {
             if (m.data === "ping") {
@@ -55,7 +68,7 @@ class App extends React.Component<any, State> {
             } else {
                 const events = JSON.parse(m.data);
                 const sideEffectEvents = events.filter(e => App.isSideEffect(e));
-                this.addTosideEffectsBox(sideEffectEvents, 0);
+                this.addToSideEffectsBox(sideEffectEvents, 0);
 
             }
         }
@@ -88,35 +101,49 @@ class App extends React.Component<any, State> {
         );
     }
 
-    private addTosideEffectsBox(events, index: number) {
+    private addToSideEffectsBox(events, index: number) {
         window.setTimeout(() => {
             this.setState((s) => {
                 return {...s, events: [events[index], ...s.events]}
             });
             if (index < events.length - 1) {
-                window.setTimeout(() => this.addTosideEffectsBox(events, index + 1), this.state.interval);
+                window.setTimeout(() => this.addToSideEffectsBox(events, index + 1), this.state.interval);
             } else {
                 this.websocket.send("Batch finished")
             }
         }, this.state.interval);
     }
 
-    private loadAtms() {
-        axios.get('config')
+    private loadConfig() {
+        axios.get(`http://${server}/config`)
             .then(r => {
-                const atms = r.data.atms;
-
                 this.setState(s => {
-                    return {...s, atms}
-                })
+                    return {...s, atms: r.data.atms, config: r.data}
+                });
             });
+    }
+
+    private refillAmountChanged(atm) {
+        return e => {
+            const atms = this.state.atms.map(x => {
+                if (x.name === atm.name) {
+                    return {
+                        ...atm,
+                        refillAmount: Number.parseInt(e.target.value, undefined)
+                    };
+                } else {
+                    return x
+                }
+            });
+            this.setState({...this.state, atms})
+        }
     }
 
     private atms() {
         return this.state.atms.map((a) =>
             <Marker key={a.name} position={a.location} icon={icon}>
                 <Popup>
-                    Atm: {a.name}
+                    <AtmPopup atm={a} refillAmountChanged={this.refillAmountChanged(a)}/>
                 </Popup>
             </Marker>
         );

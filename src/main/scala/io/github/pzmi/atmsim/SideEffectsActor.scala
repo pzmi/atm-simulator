@@ -1,8 +1,7 @@
 package io.github.pzmi.atmsim
 
 import java.time.Instant
-import java.util.Random
-import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
+import java.util.concurrent.TimeUnit
 
 import akka.Done
 import akka.actor.{Actor, ActorLogging, Props}
@@ -31,7 +30,8 @@ class SideEffectsActor(private val atmToConfig: Map[String, SideEffectConfig]) e
     case e: OutOfMoney =>
       resp { _ =>
         eventsQueue.enqueue(
-        SideEffectEvent(e.time.plusSeconds(TimeUnit.HOURS.toSeconds(atmToConfig(e.atm).refillDelayHours)), e)) }
+          SideEffectEvent(e.time.plusSeconds(TimeUnit.HOURS.toSeconds(atmToConfig(e.atm).refillDelayHours)), e))
+      }
 
     case TimePassed(t) => resp { _ =>
       drainDueEvents()

@@ -16,6 +16,7 @@ import org.json4s.{CustomSerializer, DefaultFormats, Formats, JString}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
+import akka.http.scaladsl.model.headers._
 
 object Application extends App with ActorModule with ServerModule with StrictLogging {
   implicit val formats: AnyRef with Formats = DefaultFormats + InstantSerializer + DistributionSerializer
@@ -26,7 +27,14 @@ object Application extends App with ActorModule with ServerModule with StrictLog
   val appRoute = getFromResource("webapp/index.html")
   val configRoute = path("config") {
     get {
-      complete(HttpEntity(ContentTypes.`application/json`, Serialization.write[Config](config)))
+      respondWithHeaders(List(
+        `Access-Control-Allow-Origin`.*,
+        `Access-Control-Allow-Credentials`(true),
+        `Access-Control-Allow-Headers`("Authorization",
+          "Content-Type", "X-Requested-With")
+      )) {
+        complete(HttpEntity(ContentTypes.`application/json`, Serialization.write[Config](config)))
+      }
     }
   }
 
