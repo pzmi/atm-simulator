@@ -1,4 +1,5 @@
 import axios from 'axios'
+import dateFormat from 'dateformat'
 import * as  L from 'leaflet';
 import * as React from 'react';
 // @ts-ignore
@@ -23,10 +24,12 @@ export interface Atm {
 }
 
 interface State {
-    readonly config: object
+    readonly config: any
     atms: Atm[]
     events: Props[]
     zoom: number
+    selectedDate: Date
+    selectedHour: number
     interval: number
 }
 
@@ -53,6 +56,8 @@ class App extends React.Component<any, State> {
         config: {},
         events: [],
         interval: 10,
+        selectedDate: new Date(),
+        selectedHour: new Date().getHours(),
         zoom: 14
     };
 
@@ -124,13 +129,59 @@ class App extends React.Component<any, State> {
     }
 
     private refillAmountChanged(atm) {
+        return this.withChangedValueFromEvent(atm, "refillAmount");
+    }
+
+    private refillDelayHoursChanged(atm) {
+        return this.withChangedValueFromEvent(atm, "refillDelayHours");
+    }
+
+    private atmDefaultLoadChanged(atm) {
+        return this.withChangedValueFromEvent(atm, "atmDefaultLoad");
+    }
+
+    private hourlyLoadChanged(atm, timestamp: number) {
         return e => {
+            console.log(`Hourly load at ${timestamp} changed to ${e.target.value}`);
             const atms = this.state.atms.map(x => {
                 if (x.name === atm.name) {
-                    return {
-                        ...atm,
-                        refillAmount: Number.parseInt(e.target.value, undefined)
-                    };
+                    const changedAtm = {...atm};
+                    const changedHourly = {...changedAtm.hourly[timestamp]};
+                    changedHourly.load = Number.parseInt(e.target.value, undefined);
+                    changedAtm.hourly[timestamp] = changedHourly;
+                    return changedAtm;
+                } else {
+                    return x
+                }
+            });
+            this.setState({...this.state, atms})
+        }
+    }
+
+    private selectedDateChanged() {
+        return e => {
+            console.log(`Selected date changed to ${e.target.value}`);
+            const selectedDate = new Date(e.target.value);
+            this.setState({...this.state, selectedDate})
+        }
+    }
+
+    private selectedHourChanged() {
+        return e => {
+            console.log(`Selected hour changed to ${e.target.value}`);
+            const selectedHour = e.target.value;
+            this.setState({...this.state, selectedHour});
+        }
+    }
+
+    private withChangedValueFromEvent(atm, field: string) {
+        return e => {
+            console.log(`Field ${field} changed to ${e.target.value}`);
+            const atms = this.state.atms.map(x => {
+                if (x.name === atm.name) {
+                    const changedAtm = {...atm};
+                    changedAtm[field] = Number.parseInt(e.target.value, undefined);
+                    return changedAtm;
                 } else {
                     return x
                 }
@@ -140,13 +191,31 @@ class App extends React.Component<any, State> {
     }
 
     private atms() {
+        const selectedDate = this.state.selectedDate;
+
         return this.state.atms.map((a) =>
             <Marker key={a.name} position={a.location} icon={icon}>
                 <Popup>
-                    <AtmPopup atm={a} refillAmountChanged={this.refillAmountChanged(a)}/>
+                    <AtmPopup atm={a}
+                              default={this.state.config.default}
+                              selectedDate={dateFormat(selectedDate, "yyyy-mm-dd")}
+                              selectedHour={this.state.selectedHour}
+                              refillAmountChanged={this.refillAmountChanged(a)}
+                              refillDelayHoursChanged={this.refillDelayHoursChanged(a)}
+                              atmDefaultLoadChanged={this.atmDefaultLoadChanged(a)}
+                              selectedDateChanged={this.selectedDateChanged()}
+                              selectedHourChanged={this.selectedHourChanged()}
+                              hourlyLoadChanged={this.hourlyLoadChanged(a, this.getTimestamp())}
+                    />
                 </Popup>
             </Marker>
         );
+    }
+
+    private getTimestamp(): number {
+        const date = new Date(this.state.selectedDate.getTime());
+        date.setHours(this.state.selectedHour, 0, 0, 0);
+        return date.getTime();
     }
 }
 
