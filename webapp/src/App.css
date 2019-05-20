@@ -38,7 +38,7 @@
   flex-direction: row;
 }
 
-.Events {
+.right-panel {
   text-align: left;
   flex-direction: column;
   width: 350px;

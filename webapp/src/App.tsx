@@ -63,6 +63,8 @@ class App extends React.Component<any, State> {
 
     private websocket;
 
+    private handleStartSimulation = this.startSimulation.bind(this);
+
     public componentDidMount(): void {
         this.loadConfig();
         this.websocket = new WebSocket(`ws://${server}/websocket/output`);
@@ -91,7 +93,10 @@ class App extends React.Component<any, State> {
                         {this.atms()}
 
                     </Map>
-                    <div className="Events">
+                    <div className="right-panel">
+                        <div>
+                            <button onClick={this.handleStartSimulation}>Start simulation</button>
+                        </div>
                         <div className="Events-banner">
                             Events
                         </div>
@@ -120,7 +125,8 @@ class App extends React.Component<any, State> {
     }
 
     private loadConfig() {
-        axios.get(`http://${server}/config`)
+        axios.get(`http://${server}/config`,
+            {headers: {Accept: "application/json"}})
             .then(r => {
                 this.setState(s => {
                     return {...s, atms: r.data.atms, config: r.data}
@@ -216,6 +222,17 @@ class App extends React.Component<any, State> {
         const date = new Date(this.state.selectedDate.getTime());
         date.setHours(this.state.selectedHour, 0, 0, 0);
         return date.getTime();
+    }
+
+    private startSimulation() {
+        axios.post(`http://${server}/simulation/a.log`,
+            {
+                atms: this.state.atms,
+                default: this.state.config.default,
+                withdrawal: this.state.config.withdrawal,
+            })
+            .then(response => console.log(`Simulation response ${response}`))
+            .catch(errorResponse => `Simulation error ${errorResponse}`)
     }
 }
 

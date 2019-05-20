@@ -83,7 +83,7 @@ object Application extends App with ActorModule with ServerModule with StrictLog
 
   private val host = "localhost"
   private val port = 8080
-  val bindingFuture = Http().bindAndHandle(websocket ~ simulationRoute ~ configRoute ~ staticRoute ~ appRoute, host, port)
+  val bindingFuture = Http().bindAndHandle(server.route, host, port)
 
   logger.info(s"Starting server on http://$host:$port")
 
