@@ -10,6 +10,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.stream.scaladsl.{FileIO, Source, SourceQueueWithComplete}
 import akka.stream.{Materializer, OverflowStrategy}
 import akka.util.{ByteString, Timeout}
+import org.json4s
 import org.json4s._
 import org.json4s.jackson.Serialization.write
 
@@ -67,6 +68,9 @@ case class Complete(startTime: Long)
 object InstantSerializer extends CustomSerializer[Instant](_ => ( {
   case JString(str) =>
     Instant.parse(str)
+  case JInt(millis) =>
+    Instant.ofEpochMilli(millis.longValue())
 }, {
   case instant: Instant => JString(instant.toEpochMilli.toString)
+  case instant: Instant => JInt(instant.toEpochMilli)
 }))

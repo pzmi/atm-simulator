@@ -1,4 +1,6 @@
 {
+  "startDate": 1558470392042,
+  "endDate": 1559068059000,
   "default": {
     "refillAmount": 10000,
     "refillDelayHours": 5,

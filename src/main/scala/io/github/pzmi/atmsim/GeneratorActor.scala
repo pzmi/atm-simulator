@@ -1,8 +1,7 @@
 package io.github.pzmi.atmsim
 
 import java.time.{Instant, LocalDateTime, ZoneOffset}
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.{ConcurrentHashMap, ThreadLocalRandom}
+import java.util.concurrent.ThreadLocalRandom
 
 import akka.NotUsed
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, Props}
@@ -13,7 +12,6 @@ import akka.util.Timeout
 import scala.collection._
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.collection.JavaConverters._
 
 object GeneratorActor {
   private val TimeZone = ZoneOffset.UTC

@@ -31,6 +31,10 @@ interface State {
     selectedDate: Date
     selectedHour: number
     interval: number
+    startDate: Date
+    startHour: number
+    endDate: Date
+    endHour: number
 }
 
 const cracowLocation = [50.06143, 19.944544];
@@ -51,19 +55,27 @@ class App extends React.Component<any, State> {
         return sideEffects.includes(m.eventType);
     }
 
+    private static datepickerFormat(selectedDate) {
+        return dateFormat(selectedDate, "yyyy-mm-dd");
+    }
+
+    public now = new Date();
+
     public state: State = {
         atms: [],
         config: {},
+        endDate: new Date(this.now.getFullYear(), this.now.getMonth(), this.now.getDate() + 7),
+        endHour: this.now.getHours(),
         events: [],
         interval: 10,
-        selectedDate: new Date(),
-        selectedHour: new Date().getHours(),
-        zoom: 14
+        selectedDate: this.now,
+        selectedHour: this.now.getHours(),
+        startDate: this.now,
+        startHour: this.now.getHours(),
+        zoom: 14,
     };
 
     private websocket;
-
-    private handleStartSimulation = this.startSimulation.bind(this);
 
     public componentDidMount(): void {
         this.loadConfig();
@@ -94,8 +106,28 @@ class App extends React.Component<any, State> {
 
                     </Map>
                     <div className="right-panel">
+                        <div>Start date: <input type="date" name="startDate"
+                                          value={App.datepickerFormat(this.state.startDate)}
+                                          onChange={this.startDateChanged}/>
+                        </div>
+                        <div>Start hour: <input type="number" name="startHour"
+                                                min="0"
+                                                max="24"
+                                                value={this.state.startHour}
+                                                onChange={this.startHourChanged}/>
+                        </div>
+                        <div>End date: <input type="date" name="endDate"
+                                          value={App.datepickerFormat(this.state.endDate)}
+                                          onChange={this.endDateChanged}/>
+                        </div>
+                        <div>End hour: <input type="number" name="endHour"
+                                              min="0"
+                                              max="24"
+                                              value={this.state.endHour}
+                                              onChange={this.endHourChanged}/>
+                        </div>
                         <div>
-                            <button onClick={this.handleStartSimulation}>Start simulation</button>
+                            <button onClick={this.startSimulation}>Start simulation</button>
                         </div>
                         <div className="Events-banner">
                             Events
@@ -164,21 +196,41 @@ class App extends React.Component<any, State> {
         }
     }
 
-    private selectedDateChanged() {
-        return e => {
-            console.log(`Selected date changed to ${e.target.value}`);
-            const selectedDate = new Date(e.target.value);
-            this.setState({...this.state, selectedDate})
-        }
-    }
+    private selectedDateChanged = (e) => {
+        console.log(`Selected date changed to ${e.target.value}`);
+        const selectedDate = new Date(e.target.value);
+        this.setState({...this.state, selectedDate})
+    };
 
-    private selectedHourChanged() {
-        return e => {
-            console.log(`Selected hour changed to ${e.target.value}`);
-            const selectedHour = e.target.value;
-            this.setState({...this.state, selectedHour});
-        }
-    }
+    private selectedHourChanged = (e) => {
+        console.log(`Selected hour changed to ${e.target.value}`);
+        const selectedHour = Number.parseInt(e.target.value, undefined);
+        this.setState({...this.state, selectedHour});
+    };
+
+    private startDateChanged = (e) => {
+        console.log(`Start date changed to ${e.target.value}`);
+        const startDate = new Date(e.target.value);
+        this.setState({...this.state, startDate})
+    };
+
+    private startHourChanged = (e) => {
+        console.log(`Start hour changed to ${e.target.value}`);
+        const startHour = Number.parseInt(e.target.value, undefined);
+        this.setState({...this.state, startHour});
+    };
+
+    private endDateChanged = (e) => {
+        console.log(`End date changed to ${e.target.value}`);
+        const endDate = new Date(e.target.value);
+        this.setState({...this.state, endDate})
+    };
+
+    private endHourChanged = (e) => {
+        console.log(`End hour changed to ${e.target.value}`);
+        const endHour = Number.parseInt(e.target.value, undefined);
+        this.setState({...this.state, endHour});
+    };
 
     private withChangedValueFromEvent(atm, field: string) {
         return e => {
@@ -204,13 +256,13 @@ class App extends React.Component<any, State> {
                 <Popup>
                     <AtmPopup atm={a}
                               default={this.state.config.default}
-                              selectedDate={dateFormat(selectedDate, "yyyy-mm-dd")}
+                              selectedDate={App.datepickerFormat(selectedDate)}
                               selectedHour={this.state.selectedHour}
                               refillAmountChanged={this.refillAmountChanged(a)}
                               refillDelayHoursChanged={this.refillDelayHoursChanged(a)}
                               atmDefaultLoadChanged={this.atmDefaultLoadChanged(a)}
-                              selectedDateChanged={this.selectedDateChanged()}
-                              selectedHourChanged={this.selectedHourChanged()}
+                              selectedDateChanged={this.selectedDateChanged}
+                              selectedHourChanged={this.selectedHourChanged}
                               hourlyLoadChanged={this.hourlyLoadChanged(a, this.getTimestamp())}
                     />
                 </Popup>
@@ -224,7 +276,7 @@ class App extends React.Component<any, State> {
         return date.getTime();
     }
 
-    private startSimulation() {
+    private startSimulation = () => {
         axios.post(`http://${server}/simulation/a.log`,
             {
                 atms: this.state.atms,
