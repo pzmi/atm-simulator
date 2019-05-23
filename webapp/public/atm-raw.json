@@ -1,0 +1,2077 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.55.5 2ca3f387",
+  "osm3s": {
+    "timestamp_osm_base": "2019-03-23T20:15:01Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 475387316,
+  "lat": 50.0622357,
+  "lon": 19.9359087,
+  "tags": {
+    "amenity": "atm",
+    "name": "Pekao SA",
+    "operator": "Pekao SA"
+  }
+},
+{
+  "type": "node",
+  "id": 490986146,
+  "lat": 50.0637685,
+  "lon": 19.9374454,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "12",
+    "addr:street": "Sławkowska",
+    "amenity": "atm",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Cash4You",
+    "millennium:ref": "19612",
+    "millennium:subtype": "Euronet",
+    "name": "Cash4You",
+    "operator": "Euronet Sp. z o.o.",
+    "ref": "8762"
+  }
+},
+{
+  "type": "node",
+  "id": 935788756,
+  "lat": 50.0539647,
+  "lon": 19.9395304,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "2",
+    "addr:street": "Stradomska",
+    "amenity": "atm",
+    "atm_ref": "ML3158A",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Millennium",
+    "millennium:ref": "18397",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat Millennium",
+    "opening_hours": "24/7",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935792653,
+  "lat": 50.0492958,
+  "lon": 19.9257947,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "9",
+    "addr:street": "Michała Bałuckiego",
+    "amenity": "atm",
+    "atm_ref": "9886",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Cash4You",
+    "millennium:ref": "19822",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat Cash4You",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935792806,
+  "lat": 50.0602291,
+  "lon": 19.9323401,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "23",
+    "addr:street": "Floriana Straszewskiego",
+    "amenity": "atm",
+    "atm_ref": "8463",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Cash4You",
+    "millennium:ref": "19524",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat Cash4You",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935793751,
+  "lat": 50.0576386,
+  "lon": 19.9457129,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "80-82",
+    "addr:street": "Józefa Dietla",
+    "amenity": "atm",
+    "atm_ref": "2053240",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "BZ WBK",
+    "millennium:ref": "19282",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat BZ WBK",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935796046,
+  "lat": 50.0516242,
+  "lon": 19.9423150,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "2",
+    "addr:street": "Miodowa",
+    "amenity": "atm",
+    "atm_ref": "ML3093A",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Millennium",
+    "millennium:ref": "18368",
+    "millennium:subtype": "Euronet",
+    "name": "Millennium",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935796674,
+  "lat": 50.0590000,
+  "lon": 19.9493000,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "8",
+    "addr:street": "Grzegórzecka",
+    "amenity": "atm",
+    "atm_ref": "MBPL473A",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Millennium",
+    "millennium:ref": "18424",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat Millennium",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935797569,
+  "lat": 50.0570000,
+  "lon": 19.9301000,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "26",
+    "addr:street": "Zwierzyniecka",
+    "amenity": "atm",
+    "atm_ref": "ML3704A",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Millennium",
+    "millennium:ref": "18337",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat Millennium",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935797650,
+  "lat": 50.0683854,
+  "lon": 19.9494187,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "18 (ATM 3)",
+    "addr:street": "Bosacka",
+    "amenity": "atm",
+    "atm_ref": "9883",
+    "brand": "Cash4You",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Cash4You",
+    "millennium:ref": "19819",
+    "millennium:subtype": "Euronet",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935798096,
+  "lat": 50.0683843,
+  "lon": 19.9493856,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "18 (ATM 1)",
+    "addr:street": "Bosacka",
+    "amenity": "atm",
+    "atm_ref": "9764",
+    "brand": "Cash4You",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Cash4You",
+    "millennium:ref": "19702",
+    "millennium:subtype": "Euronet",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935799384,
+  "lat": 50.0610000,
+  "lon": 19.9442000,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "15/16",
+    "addr:street": "Westerplatte",
+    "amenity": "atm",
+    "atm_ref": "2053200",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "BZ WBK",
+    "millennium:ref": "18955",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat BZ WBK",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935799489,
+  "lat": 50.0645068,
+  "lon": 19.9461217,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "23",
+    "addr:street": "Lubicz",
+    "amenity": "atm",
+    "millennium:date": "2010-05-18 11:08:39",
+    "millennium:network": "BZ WBK",
+    "millennium:ref": "20908",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat BZ WBK",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935799786,
+  "lat": 50.0570000,
+  "lon": 19.9301000,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "26",
+    "addr:street": "Zwierzyniecka",
+    "amenity": "atm",
+    "atm_ref": "ML3704B",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Millennium",
+    "millennium:ref": "18338",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat Millennium",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935801286,
+  "lat": 50.0640928,
+  "lon": 19.9325528,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "9",
+    "addr:street": "Karmelicka",
+    "amenity": "atm",
+    "atm_ref": "2053000",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "BZ WBK",
+    "millennium:ref": "18982",
+    "millennium:subtype": "Euronet",
+    "name": "BZ WBK",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935801754,
+  "lat": 50.0638439,
+  "lon": 19.9328022,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "3",
+    "addr:street": "Karmelicka",
+    "amenity": "atm",
+    "atm_ref": "ML3128A",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Millennium",
+    "millennium:ref": "18031",
+    "millennium:subtype": "Euronet",
+    "name": "Millennium",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935801963,
+  "lat": 50.0664782,
+  "lon": 19.9400295,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "4",
+    "addr:street": "Rynek Kleparski",
+    "amenity": "atm",
+    "atm_ref": "ML3096A",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Millennium",
+    "millennium:ref": "18036",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat Millennium",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935802212,
+  "lat": 50.0607000,
+  "lon": 19.9397000,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "7",
+    "addr:street": "Sienna",
+    "amenity": "atm",
+    "atm_ref": "8493",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Cash4You",
+    "millennium:ref": "19552",
+    "millennium:subtype": "Euronet",
+    "name": "Cash4You",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935802983,
+  "lat": 50.0683854,
+  "lon": 19.9494017,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "18 (ATM 2)",
+    "addr:street": "Bosacka",
+    "amenity": "atm",
+    "atm_ref": "9788",
+    "brand": "Cash4You",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Cash4You",
+    "millennium:ref": "19726",
+    "millennium:subtype": "Euronet",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 935803332,
+  "lat": 50.0624511,
+  "lon": 19.9608820,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "12",
+    "addr:street": "Aleja Powstania Warszawskiego",
+    "amenity": "atm",
+    "atm_ref": "ML3872A",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Millennium",
+    "millennium:ref": "18339",
+    "millennium:subtype": "Euronet",
+    "name": "Bankomat Millennium",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 938166447,
+  "lat": 50.0620162,
+  "lon": 19.9359663,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "30",
+    "addr:street": "Rynek Główny",
+    "amenity": "atm",
+    "atm_ref": "1665200",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "BZ WBK",
+    "millennium:ref": "18469",
+    "millennium:subtype": "Euronet",
+    "name": "BZ WBK",
+    "operator": "BZ WBK"
+  }
+},
+{
+  "type": "node",
+  "id": 938166448,
+  "lat": 50.0619723,
+  "lon": 19.9359208,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "30",
+    "addr:street": "Rynek Główny",
+    "amenity": "atm",
+    "atm_ref": "1665201",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "BZ WBK",
+    "millennium:ref": "18460",
+    "millennium:subtype": "Euronet",
+    "name": "BZ WBK",
+    "operator": "BZ WBK"
+  }
+},
+{
+  "type": "node",
+  "id": 938166454,
+  "lat": 50.0629006,
+  "lon": 19.9400982,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "17",
+    "addr:street": "Floriańska",
+    "amenity": "atm",
+    "atm_ref": "ML3103A",
+    "millennium:date": "2009-05-21 17:13:02",
+    "millennium:network": "Millennium",
+    "millennium:ref": "18030",
+    "millennium:subtype": "Euronet",
+    "name": "Millennium",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 950394463,
+  "lat": 50.0524383,
+  "lon": 19.9458953,
+  "tags": {
+    "amenity": "atm",
+    "brand": "BSR",
+    "name": "BSR"
+  }
+},
+{
+  "type": "node",
+  "id": 950394584,
+  "lat": 50.0543385,
+  "lon": 19.9478390,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet",
+    "name": "Euronet",
+    "opening_hours": "24/7"
+  }
+},
+{
+  "type": "node",
+  "id": 1325892241,
+  "lat": 50.0543529,
+  "lon": 19.9357791,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Bank PKO BP"
+  }
+},
+{
+  "type": "node",
+  "id": 1371149347,
+  "lat": 50.0573839,
+  "lon": 19.9451791,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "24/7",
+    "operator": "Santander"
+  }
+},
+{
+  "type": "node",
+  "id": 1574120501,
+  "lat": 50.0557392,
+  "lon": 19.9279771,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "1-3",
+    "addr:street": "Aleja Zygmunta Krasińskiego",
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 1574123934,
+  "lat": 50.0588505,
+  "lon": 19.9247973,
+  "tags": {
+    "amenity": "atm",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1780416580,
+  "lat": 50.0673473,
+  "lon": 19.9597830,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:street": "Aleja Pułkownika Władysława Beliny-Prażmowskiego",
+    "amenity": "atm",
+    "currency:PLN": "yes",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 1785983856,
+  "lat": 50.0582874,
+  "lon": 19.9436673,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "8",
+    "addr:postcode": "31-032",
+    "addr:street": "Starowiślna",
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 1862182074,
+  "lat": 50.0640550,
+  "lon": 19.9278323,
+  "tags": {
+    "amenity": "atm",
+    "operator": "eCard"
+  }
+},
+{
+  "type": "node",
+  "id": 1862182262,
+  "lat": 50.0633083,
+  "lon": 19.9279314,
+  "tags": {
+    "amenity": "atm",
+    "operator": "EuroCard"
+  }
+},
+{
+  "type": "node",
+  "id": 1862182472,
+  "lat": 50.0639824,
+  "lon": 19.9243252,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Pekao SA"
+  }
+},
+{
+  "type": "node",
+  "id": 1862182639,
+  "lat": 50.0652636,
+  "lon": 19.9228164,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Pekao SA"
+  }
+},
+{
+  "type": "node",
+  "id": 1862182730,
+  "lat": 50.0652654,
+  "lon": 19.9227708,
+  "tags": {
+    "amenity": "atm",
+    "operator": "?"
+  }
+},
+{
+  "type": "node",
+  "id": 1862182780,
+  "lat": 50.0646145,
+  "lon": 19.9213224,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Pekao SA"
+  }
+},
+{
+  "type": "node",
+  "id": 1862187764,
+  "lat": 50.0639184,
+  "lon": 19.9322878,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "8",
+    "addr:street": "Karmelicka",
+    "amenity": "atm",
+    "operator": "Pekao SA"
+  }
+},
+{
+  "type": "node",
+  "id": 1862676201,
+  "lat": 50.0621901,
+  "lon": 19.9361420,
+  "tags": {
+    "addr:housenumber": "31",
+    "addr:street": "Rynek Główny",
+    "amenity": "atm",
+    "operator": "Pekao SA"
+  }
+},
+{
+  "type": "node",
+  "id": 1862677324,
+  "lat": 50.0624501,
+  "lon": 19.9353490,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "24/7",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 1864021559,
+  "lat": 50.0640874,
+  "lon": 19.9321768,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:country": "PL",
+    "addr:housenumber": "10",
+    "addr:street": "Karmelicka",
+    "amenity": "atm",
+    "name": "Eurobank"
+  }
+},
+{
+  "type": "node",
+  "id": 1912626490,
+  "lat": 50.0683523,
+  "lon": 19.9565511,
+  "tags": {
+    "amenity": "atm",
+    "name": "Euronet",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 2098739206,
+  "lat": 50.0572397,
+  "lon": 19.9443985,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "21",
+    "addr:postcode": "31-038",
+    "addr:street": "Starowiślna",
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 2121797865,
+  "lat": 50.0658956,
+  "lon": 19.9614813,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 2121835254,
+  "lat": 50.0480505,
+  "lon": 19.9432783,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 2353728942,
+  "lat": 50.0677288,
+  "lon": 19.9520332,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 2451995561,
+  "lat": 50.0544141,
+  "lon": 19.9251088,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 2454841584,
+  "lat": 50.0632008,
+  "lon": 19.9536992,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 2469630535,
+  "lat": 50.0583390,
+  "lon": 19.9490543,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 2984631451,
+  "lat": 50.0550831,
+  "lon": 19.9447874,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3012787772,
+  "lat": 50.0638443,
+  "lon": 19.9376085,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "12",
+    "addr:postcode": "31-018",
+    "addr:street": "Sławkowska",
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 3012787773,
+  "lat": 50.0625093,
+  "lon": 19.9380503,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "2",
+    "addr:postcode": "31-018",
+    "addr:street": "Świętego Jana",
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 3012787774,
+  "lat": 50.0641507,
+  "lon": 19.9407434,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "32",
+    "addr:postcode": "31-021",
+    "addr:street": "Floriańska",
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 3012787775,
+  "lat": 50.0625982,
+  "lon": 19.9395328,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "6",
+    "addr:postcode": "31-021",
+    "addr:street": "Floriańska",
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 3012787776,
+  "lat": 50.0643248,
+  "lon": 19.9410545,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 3012787777,
+  "lat": 50.0645045,
+  "lon": 19.9423472,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 3179031138,
+  "lat": 50.0579194,
+  "lon": 19.9581235,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "24/7",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3192289258,
+  "lat": 50.0485334,
+  "lon": 19.9601687,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3203859805,
+  "lat": 50.0529777,
+  "lon": 19.9451548,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3203859806,
+  "lat": 50.0552121,
+  "lon": 19.9478370,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3238148424,
+  "lat": 50.0582306,
+  "lon": 19.9252704,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3246423495,
+  "lat": 50.0478506,
+  "lon": 19.9529269,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3260811527,
+  "lat": 50.0603403,
+  "lon": 19.9505914,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 3368542501,
+  "lat": 50.0680985,
+  "lon": 19.9274731,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Idea Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 3368734699,
+  "lat": 50.0642927,
+  "lon": 19.9319066,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Eurobank"
+  }
+},
+{
+  "type": "node",
+  "id": 3368741949,
+  "lat": 50.0641281,
+  "lon": 19.9324827,
+  "tags": {
+    "amenity": "atm",
+    "operator": "WBK"
+  }
+},
+{
+  "type": "node",
+  "id": 3368741950,
+  "lat": 50.0642524,
+  "lon": 19.9323550,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Reifeisen Polbank"
+  }
+},
+{
+  "type": "node",
+  "id": 3368748889,
+  "lat": 50.0639167,
+  "lon": 19.9327017,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Citi handlowy"
+  }
+},
+{
+  "type": "node",
+  "id": 3368767638,
+  "lat": 50.0652173,
+  "lon": 19.9346692,
+  "tags": {
+    "amenity": "atm",
+    "name": "BSR",
+    "operator": "BSR"
+  }
+},
+{
+  "type": "node",
+  "id": 3368767639,
+  "lat": 50.0656907,
+  "lon": 19.9351512,
+  "tags": {
+    "amenity": "atm",
+    "operator": "PeKaO"
+  }
+},
+{
+  "type": "node",
+  "id": 3369322193,
+  "lat": 50.0639517,
+  "lon": 19.9619542,
+  "tags": {
+    "amenity": "atm",
+    "operator": "BPH"
+  }
+},
+{
+  "type": "node",
+  "id": 3370643242,
+  "lat": 50.0671606,
+  "lon": 19.9386456,
+  "tags": {
+    "amenity": "atm",
+    "operator": "PKO SA"
+  }
+},
+{
+  "type": "node",
+  "id": 3370651175,
+  "lat": 50.0669647,
+  "lon": 19.9429439,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 3370651176,
+  "lat": 50.0691953,
+  "lon": 19.9381304,
+  "tags": {
+    "amenity": "atm",
+    "operator": "BNP"
+  }
+},
+{
+  "type": "node",
+  "id": 3370651178,
+  "lat": 50.0694563,
+  "lon": 19.9375833,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet Sp. z o.o."
+  }
+},
+{
+  "type": "node",
+  "id": 3372131990,
+  "lat": 50.0671749,
+  "lon": 19.9440918,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet",
+    "opening_hours": "24/7",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3372148214,
+  "lat": 50.0643797,
+  "lon": 19.9451171,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Crédit Agricole"
+  }
+},
+{
+  "type": "node",
+  "id": 3372148215,
+  "lat": 50.0645611,
+  "lon": 19.9448118,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet",
+    "layer": "-1"
+  }
+},
+{
+  "type": "node",
+  "id": 3372186627,
+  "lat": 50.0533234,
+  "lon": 19.9402673,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Bank Zachodni"
+  }
+},
+{
+  "type": "node",
+  "id": 3373550166,
+  "lat": 50.0523283,
+  "lon": 19.9406663,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Raiffeisen Polbank"
+  }
+},
+{
+  "type": "node",
+  "id": 3373613941,
+  "lat": 50.0657363,
+  "lon": 19.9303026,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Aliorbank"
+  }
+},
+{
+  "type": "node",
+  "id": 3373626719,
+  "lat": 50.0672362,
+  "lon": 19.9284601,
+  "tags": {
+    "amenity": "atm",
+    "brand": "SKOK"
+  }
+},
+{
+  "type": "node",
+  "id": 3373626720,
+  "lat": 50.0686153,
+  "lon": 19.9268804,
+  "tags": {
+    "amenity": "atm",
+    "brand": "PKO"
+  }
+},
+{
+  "type": "node",
+  "id": 3373671331,
+  "lat": 50.0597419,
+  "lon": 19.9378520,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3649039076,
+  "lat": 50.0634226,
+  "lon": 19.9325486,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "6",
+    "addr:street": "Podwale",
+    "amenity": "atm",
+    "name": "Bankomat PKO SA",
+    "operator": "PKO SA"
+  }
+},
+{
+  "type": "node",
+  "id": 3737140639,
+  "lat": 50.0621281,
+  "lon": 19.9618260,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet",
+    "source": "geoportal.gov.pl:ortofoto"
+  }
+},
+{
+  "type": "node",
+  "id": 3787105982,
+  "lat": 50.0521580,
+  "lon": 19.9413436,
+  "tags": {
+    "amenity": "atm",
+    "operator": "SKOK"
+  }
+},
+{
+  "type": "node",
+  "id": 3816892357,
+  "lat": 50.0589834,
+  "lon": 19.9487896,
+  "tags": {
+    "amenity": "atm",
+    "drive_through": "no",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 3852667216,
+  "lat": 50.0629185,
+  "lon": 19.9414559,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "15",
+    "addr:postcode": "31-024",
+    "addr:street": "Szpitalna",
+    "amenity": "atm",
+    "cash_in": "yes",
+    "location": "outdoor",
+    "name": "Pekao SA",
+    "opening_hours": "24/7",
+    "operator": "Bank Pekao SA"
+  }
+},
+{
+  "type": "node",
+  "id": 3852667218,
+  "lat": 50.0628901,
+  "lon": 19.9411937,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "20",
+    "addr:street": "Szpitalna",
+    "amenity": "atm",
+    "name": "BOŚ",
+    "opening_hours": "24/7",
+    "operator": "BOŚ"
+  }
+},
+{
+  "type": "node",
+  "id": 3884876247,
+  "lat": 50.0706637,
+  "lon": 19.9364422,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 3884876248,
+  "lat": 50.0693940,
+  "lon": 19.9376431,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 3884876249,
+  "lat": 50.0694161,
+  "lon": 19.9376220,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 3884879754,
+  "lat": 50.0666445,
+  "lon": 19.9397457,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 3884879755,
+  "lat": 50.0668827,
+  "lon": 19.9399958,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 3884880057,
+  "lat": 50.0653412,
+  "lon": 19.9370921,
+  "tags": {
+    "amenity": "atm",
+    "location": "outdoor"
+  }
+},
+{
+  "type": "node",
+  "id": 3884880058,
+  "lat": 50.0609764,
+  "lon": 19.9445982,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 3890690177,
+  "lat": 50.0626891,
+  "lon": 19.9406422,
+  "tags": {
+    "amenity": "atm",
+    "name": "ING",
+    "opening_hours": "24/7",
+    "operator": "ING Bank Śląski"
+  }
+},
+{
+  "type": "node",
+  "id": 3940940664,
+  "lat": 50.0550975,
+  "lon": 19.9215548,
+  "tags": {
+    "amenity": "atm",
+    "drive_through": "no",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4017185295,
+  "lat": 50.0618629,
+  "lon": 19.9610795,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "10",
+    "addr:street": "Aleja Powstania Warszawskiego",
+    "amenity": "atm",
+    "name": "Bankomat PKO Bank polski",
+    "opening_hours": "24/7"
+  }
+},
+{
+  "type": "node",
+  "id": 4036995027,
+  "lat": 50.0606269,
+  "lon": 19.9349663,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4036995030,
+  "lat": 50.0609500,
+  "lon": 19.9392262,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4037009361,
+  "lat": 50.0538247,
+  "lon": 19.9393164,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4037044910,
+  "lat": 50.0587775,
+  "lon": 19.9379832,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4037050153,
+  "lat": 50.0702574,
+  "lon": 19.9440180,
+  "tags": {
+    "amenity": "atm",
+    "brand": "WBK"
+  }
+},
+{
+  "type": "node",
+  "id": 4144382790,
+  "lat": 50.0548427,
+  "lon": 19.9561494,
+  "tags": {
+    "amenity": "atm",
+    "name": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4232437637,
+  "lat": 50.0561207,
+  "lon": 19.9269537,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4232440508,
+  "lat": 50.0555605,
+  "lon": 19.9247605,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4281246646,
+  "lat": 50.0609647,
+  "lon": 19.9391237,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4306237241,
+  "lat": 50.0671492,
+  "lon": 19.9467266,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4306237242,
+  "lat": 50.0671509,
+  "lon": 19.9466083,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4357448100,
+  "lat": 50.0515854,
+  "lon": 19.9470081,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "24/7",
+    "operator": "Euronet",
+    "source": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 4362871533,
+  "lat": 50.0636664,
+  "lon": 19.9329925,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4364624062,
+  "lat": 50.0516346,
+  "lon": 19.9452679,
+  "tags": {
+    "amenity": "atm",
+    "location": "wall",
+    "opening_hours": "24/7",
+    "operator": "Euronet",
+    "source": "survey",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4364624064,
+  "lat": 50.0517086,
+  "lon": 19.9452422,
+  "tags": {
+    "amenity": "atm",
+    "location": "wall",
+    "opening_hours": "24/7",
+    "operator": "Euronet",
+    "source": "survey",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4374613893,
+  "lat": 50.0599716,
+  "lon": 19.9250703,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "24/7",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4433998905,
+  "lat": 50.0667713,
+  "lon": 19.9220346,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4442413530,
+  "lat": 50.0647090,
+  "lon": 19.9515255,
+  "tags": {
+    "amenity": "atm",
+    "atm": "yes",
+    "brand": "bgż bnp paribas",
+    "name": "bgż bnp paribas"
+  }
+},
+{
+  "type": "node",
+  "id": 4442924603,
+  "lat": 50.0648116,
+  "lon": 19.9384533,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4501871471,
+  "lat": 50.0518506,
+  "lon": 19.9270904,
+  "tags": {
+    "amenity": "atm",
+    "fee": "Bankomat ",
+    "operator": "EURONET"
+  }
+},
+{
+  "type": "node",
+  "id": 4535631871,
+  "lat": 50.0599468,
+  "lon": 19.9376099,
+  "tags": {
+    "addr:city": "Kraków",
+    "addr:housenumber": "5",
+    "addr:street": "Grodzka",
+    "amenity": "atm",
+    "name": "BGŻ BNP Paribas",
+    "opening_hours": "24/7",
+    "operator": "BGŻ BNP Paribas"
+  }
+},
+{
+  "type": "node",
+  "id": 4736558836,
+  "lat": 50.0578334,
+  "lon": 19.9308753,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4743716907,
+  "lat": 50.0669205,
+  "lon": 19.9404892,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4784972730,
+  "lat": 50.0574877,
+  "lon": 19.9382975,
+  "tags": {
+    "amenity": "atm",
+    "name": "PKO",
+    "opening_hours": "24/7"
+  }
+},
+{
+  "type": "node",
+  "id": 4784973892,
+  "lat": 50.0575751,
+  "lon": 19.9383037,
+  "tags": {
+    "amenity": "atm",
+    "name": "Euronet",
+    "opening_hours": "24/7"
+  }
+},
+{
+  "type": "node",
+  "id": 4831161121,
+  "lat": 50.0506901,
+  "lon": 19.9425704,
+  "tags": {
+    "addr:street": "Krakowska",
+    "amenity": "atm",
+    "name": "Bankomat Euronet",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4866935760,
+  "lat": 50.0702936,
+  "lon": 19.9435487,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4866937927,
+  "lat": 50.0707084,
+  "lon": 19.9413856,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Krakowski Bank Spółdzielczy"
+  }
+},
+{
+  "type": "node",
+  "id": 4982713471,
+  "lat": 50.0647406,
+  "lon": 19.9314776,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4982713473,
+  "lat": 50.0652143,
+  "lon": 19.9309532,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4982713474,
+  "lat": 50.0615243,
+  "lon": 19.9347838,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4982713482,
+  "lat": 50.0541143,
+  "lon": 19.9394051,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4982713484,
+  "lat": 50.0594282,
+  "lon": 19.9378922,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 4985735565,
+  "lat": 50.0652694,
+  "lon": 19.9434330,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4985735568,
+  "lat": 50.0544673,
+  "lon": 19.9392724,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4985735575,
+  "lat": 50.0572849,
+  "lon": 19.9406986,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4985735578,
+  "lat": 50.0647763,
+  "lon": 19.9490559,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 5066242772,
+  "lat": 50.0623751,
+  "lon": 19.9393223,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Bankomat"
+  }
+},
+{
+  "type": "node",
+  "id": 5066242773,
+  "lat": 50.0627731,
+  "lon": 19.9396606,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 5066242774,
+  "lat": 50.0631104,
+  "lon": 19.9399284,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 5066243234,
+  "lat": 50.0633515,
+  "lon": 19.9403358,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 5108116153,
+  "lat": 50.0571598,
+  "lon": 19.9406976,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5108116154,
+  "lat": 50.0604738,
+  "lon": 19.9415450,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5115875615,
+  "lat": 50.0488801,
+  "lon": 19.9639004,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5126196385,
+  "lat": 50.0520293,
+  "lon": 19.9410677,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet",
+    "opening_hours": "24/7",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5126217654,
+  "lat": 50.0534528,
+  "lon": 19.9551911,
+  "tags": {
+    "amenity": "atm",
+    "brand": "PeKaO"
+  }
+},
+{
+  "type": "node",
+  "id": 5126220667,
+  "lat": 50.0508939,
+  "lon": 19.9515264,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5131327853,
+  "lat": 50.0515557,
+  "lon": 19.9507914,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5161170824,
+  "lat": 50.0509179,
+  "lon": 19.9386065,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 5174674322,
+  "lat": 50.0664181,
+  "lon": 19.9436930,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "Mo-Sa 07:00-22:00; Su 09:00-21:00",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5295072022,
+  "lat": 50.0552896,
+  "lon": 19.9439863,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "Mo-Fr 09:30-17:00",
+    "operator": "BZ WBK"
+  }
+},
+{
+  "type": "node",
+  "id": 5465335276,
+  "lat": 50.0554513,
+  "lon": 19.9606241,
+  "tags": {
+    "amenity": "atm",
+    "name": "Bankomat Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5505644400,
+  "lat": 50.0517417,
+  "lon": 19.9472495,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "24/7",
+    "operator": "Euronet",
+    "source": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 5528750092,
+  "lat": 50.0533663,
+  "lon": 19.9467222,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5528750093,
+  "lat": 50.0550336,
+  "lon": 19.9471291,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5530509321,
+  "lat": 50.0627335,
+  "lon": 19.9608811,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "24/7",
+    "operator": "Bank Pekao"
+  }
+},
+{
+  "type": "node",
+  "id": 5531693927,
+  "lat": 50.0562847,
+  "lon": 19.9461595,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5601362451,
+  "lat": 50.0682388,
+  "lon": 19.9457030,
+  "tags": {
+    "amenity": "atm",
+    "level": "-1"
+  }
+},
+{
+  "type": "node",
+  "id": 5645198658,
+  "lat": 50.0698042,
+  "lon": 19.9258998,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Euronet",
+    "level": "0",
+    "name": "Euronet",
+    "opening_hours": "24/7"
+  }
+},
+{
+  "type": "node",
+  "id": 5723702556,
+  "lat": 50.0661743,
+  "lon": 19.9461319,
+  "tags": {
+    "amenity": "atm",
+    "level": "0"
+  }
+},
+{
+  "type": "node",
+  "id": 5749639003,
+  "lat": 50.0652337,
+  "lon": 19.9387584,
+  "tags": {
+    "amenity": "atm",
+    "name": "Euronet",
+    "opening_hours": "24/7"
+  }
+},
+{
+  "type": "node",
+  "id": 5789725376,
+  "lat": 50.0522047,
+  "lon": 19.9431218,
+  "tags": {
+    "amenity": "atm",
+    "name": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5924598619,
+  "lat": 50.0569965,
+  "lon": 19.9453709,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5924907148,
+  "lat": 50.0535137,
+  "lon": 19.9486991,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5924907149,
+  "lat": 50.0534229,
+  "lon": 19.9480142,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5927709317,
+  "lat": 50.0669719,
+  "lon": 19.9291442,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 5945999039,
+  "lat": 50.0501322,
+  "lon": 19.9425211,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 6010764805,
+  "lat": 50.0502191,
+  "lon": 19.9481654,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 6014023340,
+  "lat": 50.0686801,
+  "lon": 19.9444470,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "24/7",
+    "operator": "Euronet",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6050976798,
+  "lat": 50.0526254,
+  "lon": 19.9447195,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 6050978087,
+  "lat": 50.0533014,
+  "lon": 19.9464855,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 6133606774,
+  "lat": 50.0635634,
+  "lon": 19.9289868,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 6137550756,
+  "lat": 50.0683354,
+  "lon": 19.9457576,
+  "tags": {
+    "amenity": "atm",
+    "level": "-1"
+  }
+},
+{
+  "type": "node",
+  "id": 6139222086,
+  "lat": 50.0677560,
+  "lon": 19.9489868,
+  "tags": {
+    "amenity": "atm",
+    "opening_hours": "24/7",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 6304608379,
+  "lat": 50.0518234,
+  "lon": 19.9490637,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+},
+{
+  "type": "node",
+  "id": 6304608382,
+  "lat": 50.0513031,
+  "lon": 19.9480927,
+  "tags": {
+    "amenity": "atm",
+    "operator": "Euronet"
+  }
+}
+
+  ]
+}
