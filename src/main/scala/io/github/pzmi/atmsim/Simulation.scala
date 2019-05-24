@@ -1,6 +1,6 @@
 package io.github.pzmi.atmsim
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 import akka.actor.ActorRef
 import akka.stream.Materializer
@@ -17,8 +17,8 @@ object Simulation extends StrictLogging {
   def start(randomSeed: Long,
             config: Config,
             eventsPerHour: Int,
-            startDate: LocalDateTime,
-            endDate: LocalDateTime,
+            startDate: Instant,
+            endDate: Instant,
            fileName: String)(implicit materializer: Materializer,
                                       executionContext: ExecutionContext): Unit = {
     Random.setSeed(randomSeed)

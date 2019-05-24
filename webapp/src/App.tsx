@@ -28,13 +28,14 @@ interface State {
     atms: Atm[]
     events: Props[]
     zoom: number
+    interval: number,
     selectedDate: Date
     selectedHour: number
-    interval: number
     startDate: Date
     startHour: number
     endDate: Date
     endHour: number
+    playSpeed: number
 }
 
 const cracowLocation = [50.06143, 19.944544];
@@ -67,12 +68,13 @@ class App extends React.Component<any, State> {
         endDate: new Date(this.now.getFullYear(), this.now.getMonth(), this.now.getDate() + 7),
         endHour: this.now.getHours(),
         events: [],
-        interval: 10,
+        interval: 1000,
+        playSpeed: 1,
         selectedDate: this.now,
         selectedHour: this.now.getHours(),
         startDate: this.now,
         startHour: this.now.getHours(),
-        zoom: 14,
+        zoom: 14
     };
 
     private websocket;
@@ -106,28 +108,35 @@ class App extends React.Component<any, State> {
 
                     </Map>
                     <div className="right-panel">
-                        <div>Start date: <input type="date" name="startDate"
-                                          value={App.datepickerFormat(this.state.startDate)}
-                                          onChange={this.startDateChanged}/>
-                        </div>
-                        <div>Start hour: <input type="number" name="startHour"
-                                                min="0"
-                                                max="24"
-                                                value={this.state.startHour}
-                                                onChange={this.startHourChanged}/>
-                        </div>
-                        <div>End date: <input type="date" name="endDate"
-                                          value={App.datepickerFormat(this.state.endDate)}
-                                          onChange={this.endDateChanged}/>
-                        </div>
-                        <div>End hour: <input type="number" name="endHour"
-                                              min="0"
-                                              max="24"
-                                              value={this.state.endHour}
-                                              onChange={this.endHourChanged}/>
-                        </div>
                         <div>
-                            <button onClick={this.startSimulation}>Start simulation</button>
+                            <div>Start date: <input type="date" name="startDate"
+                                                    value={App.datepickerFormat(this.state.startDate)}
+                                                    onChange={this.startDateChanged}/>
+                            </div>
+                            <div>Start hour: <input type="number" name="startHour"
+                                                    min="0"
+                                                    max="24"
+                                                    value={this.state.startHour}
+                                                    onChange={this.startHourChanged}/>
+                            </div>
+                            <div>End date: <input type="date" name="endDate"
+                                                  value={App.datepickerFormat(this.state.endDate)}
+                                                  onChange={this.endDateChanged}/>
+                            </div>
+                            <div>End hour: <input type="number" name="endHour"
+                                                  min="0"
+                                                  max="24"
+                                                  value={this.state.endHour}
+                                                  onChange={this.endHourChanged}/>
+                            </div>
+                            <div>
+                                <button onClick={this.startSimulation}>Start simulation</button>
+                            </div>
+                            <div>
+                                <button onClick={this.accelerate}>+</button>
+                                Simulation speed
+                                <button onClick={this.decelerate}>-</button>
+                            </div>
                         </div>
                         <div className="Events-banner">
                             Events
@@ -149,7 +158,8 @@ class App extends React.Component<any, State> {
                 return {...s, events: [events[index], ...s.events]}
             });
             if (index < events.length - 1) {
-                window.setTimeout(() => this.addToSideEffectsBox(events, index + 1), this.state.interval);
+                window.setTimeout(() => this.addToSideEffectsBox(events, index + 1),
+                    this.state.interval);
             } else {
                 this.websocket.send("Batch finished")
             }
@@ -244,7 +254,9 @@ class App extends React.Component<any, State> {
                     return x
                 }
             });
-            this.setState({...this.state, atms})
+            this.setState(s => {
+                return {...s, atms}
+            })
         }
     }
 
@@ -277,15 +289,35 @@ class App extends React.Component<any, State> {
     }
 
     private startSimulation = () => {
-        axios.post(`http://${server}/simulation/a.log`,
+        axios.post(`http://${server}/simulation/a`,
             {
                 atms: this.state.atms,
                 default: this.state.config.default,
+                endDate: this.state.endDate,
+                endHour: this.state.endHour,
+                startDate: this.state.startDate,
+                startHour: this.state.selectedHour,
                 withdrawal: this.state.config.withdrawal,
             })
             .then(response => console.log(`Simulation response ${response}`))
             .catch(errorResponse => `Simulation error ${errorResponse}`)
-    }
+    };
+
+    private accelerate = () => {
+        this.setState(s => {
+            const playSpeed = s.playSpeed * 10;
+            const interval = Math.floor(1000 / playSpeed);
+            return {...s, playSpeed, interval}
+        })
+    };
+
+    private decelerate = () => {
+        this.setState(s => {
+            const playSpeed = s.playSpeed / 10;
+            const interval = Math.floor(1000 / playSpeed);
+            return {...s, playSpeed, interval}
+        })
+    };
 }
 
 export default App;

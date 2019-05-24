@@ -1,7 +1,6 @@
 package io.github.pzmi.atmsim
 
 import java.nio.file.Paths
-import java.time.{LocalDate, LocalDateTime, LocalTime}
 
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes._
@@ -65,12 +64,17 @@ class Server(implicit private val materializer: Materializer,
 
   val simulationRoute = path("simulation" / Segment) { fileName =>
     post {
-      entity(as[Config]) { c =>
-        logger.info(s"Received config: ${c}")
-        val startDate = LocalDateTime.from(c.startDate)
-        val endDate = LocalDateTime.from(c.endDate)
-        Simulation.start(1L, c, 100, startDate, endDate, fileName)
-        complete(StatusCodes.NoContent)
+      respondWithHeaders(List(
+        `Access-Control-Allow-Origin`.*,
+        `Access-Control-Allow-Credentials`(true),
+        `Access-Control-Allow-Headers`("Authorization",
+          "Content-Type", "X-Requested-With"),
+      )) {
+        entity(as[Config]) { c =>
+          logger.info(s"Received config: ${c}")
+          Simulation.start(1L, c, 100, c.startDate, c.endDate, fileName)
+          complete(StatusCodes.NoContent)
+        }
       }
     }
   }

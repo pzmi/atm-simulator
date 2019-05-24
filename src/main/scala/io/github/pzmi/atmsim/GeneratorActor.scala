@@ -1,7 +1,7 @@
 package io.github.pzmi.atmsim
 
-import java.time.{Instant, LocalDateTime, ZoneOffset}
-import java.util.concurrent.ThreadLocalRandom
+import java.time.{Instant, ZoneOffset}
+import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 
 import akka.NotUsed
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, Props}
@@ -24,8 +24,8 @@ object GeneratorActor {
 
   def props(atms: Array[ActorRef],
             eventsPerHour: Int,
-            startDate: LocalDateTime,
-            endDate: LocalDateTime,
+            startDate: Instant,
+            endDate: Instant,
             outputActor: ActorRef,
             sideEffectsActor: ActorRef,
             config: Config)
@@ -37,13 +37,13 @@ object GeneratorActor {
   }
 
   private def eventsGeneratorStreamWith(atms: Array[ActorRef],
-                                        startDate: LocalDateTime,
-                                        endDate: LocalDateTime,
+                                        startDate: Instant,
+                                        endDate: Instant,
                                        ): Source[Instant, NotUsed] = {
 
-    val timeIterator: Iterator[Instant] = Iterator.iterate(startDate)(d => d.plusHours(1))
+    val timeIterator: Iterator[Instant] =
+      Iterator.iterate(startDate)(d => d.plusSeconds(TimeUnit.HOURS.toSeconds(1)))
       .takeWhile(i => !i.isAfter(endDate))
-      .map(d => d.toInstant(TimeZone))
     Source.fromIterator(() => timeIterator)
   }
 }
