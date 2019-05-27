@@ -36,6 +36,7 @@ interface State {
     endDate: Date
     endHour: number
     playSpeed: number
+    paused: boolean
 }
 
 const cracowLocation = [50.06143, 19.944544];
@@ -69,6 +70,7 @@ class App extends React.Component<any, State> {
         endHour: this.now.getHours(),
         events: [],
         interval: 1000,
+        paused: false,
         playSpeed: 1,
         selectedDate: this.now,
         selectedHour: this.now.getHours(),
@@ -133,9 +135,12 @@ class App extends React.Component<any, State> {
                                 <button onClick={this.startSimulation}>Start simulation</button>
                             </div>
                             <div>
-                                <button onClick={this.accelerate}>+</button>
                                 Simulation speed
                                 <button onClick={this.decelerate}>-</button>
+                                {this.state.paused ?
+                                    <button onClick={this.resume}>▶</button>
+                                    : <button onClick={this.pause}>||</button>}
+                                <button onClick={this.accelerate}>+</button>
                             </div>
                         </div>
                         <div className="Events-banner">
@@ -240,6 +245,20 @@ class App extends React.Component<any, State> {
         console.log(`End hour changed to ${e.target.value}`);
         const endHour = Number.parseInt(e.target.value, undefined);
         this.setState({...this.state, endHour});
+    };
+
+    private pause = () => {
+        console.log("Pause pressed");
+        const paused = true;
+        const interval = 9999999999999;
+        this.setState({...this.state, paused, interval});
+    };
+
+    private resume = () => {
+        console.log("Resume pressed");
+        const paused = false;
+        const interval = Math.floor(1000 / this.state.playSpeed);
+        this.setState({...this.state, paused, interval});
     };
 
     private withChangedValueFromEvent(atm, field: string) {
