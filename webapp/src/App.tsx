@@ -158,17 +158,23 @@ class App extends React.Component<any, State> {
     }
 
     private addToSideEffectsBox(events, index: number) {
-        window.setTimeout(() => {
-            this.setState((s) => {
-                return {...s, events: [events[index], ...s.events]}
-            });
-            if (index < events.length - 1) {
-                window.setTimeout(() => this.addToSideEffectsBox(events, index + 1),
-                    this.state.interval);
-            } else {
-                this.websocket.send("Batch finished")
-            }
-        }, this.state.interval);
+        if (this.state.paused) {
+            window.setTimeout(() => {
+                this.addToSideEffectsBox(events, index)
+            }, 100)
+        } else {
+            window.setTimeout(() => {
+                this.setState((s) => {
+                    return {...s, events: [events[index], ...s.events]}
+                });
+                if (index < events.length - 1) {
+                    window.setTimeout(() => this.addToSideEffectsBox(events, index + 1),
+                        this.state.interval);
+                } else {
+                    this.websocket.send("Batch finished")
+                }
+            }, this.state.interval);
+        }
     }
 
     private loadConfig() {
@@ -250,15 +256,13 @@ class App extends React.Component<any, State> {
     private pause = () => {
         console.log("Pause pressed");
         const paused = true;
-        const interval = 9999999999999;
-        this.setState({...this.state, paused, interval});
+        this.setState({...this.state, paused});
     };
 
     private resume = () => {
         console.log("Resume pressed");
         const paused = false;
-        const interval = Math.floor(1000 / this.state.playSpeed);
-        this.setState({...this.state, paused, interval});
+        this.setState({...this.state, paused});
     };
 
     private withChangedValueFromEvent(atm, field: string) {
@@ -324,7 +328,7 @@ class App extends React.Component<any, State> {
 
     private accelerate = () => {
         this.setState(s => {
-            const playSpeed = s.playSpeed * 10;
+            const playSpeed = s.playSpeed * 2;
             const interval = Math.floor(1000 / playSpeed);
             return {...s, playSpeed, interval}
         })
@@ -332,7 +336,7 @@ class App extends React.Component<any, State> {
 
     private decelerate = () => {
         this.setState(s => {
-            const playSpeed = s.playSpeed / 10;
+            const playSpeed = s.playSpeed / 2;
             const interval = Math.floor(1000 / playSpeed);
             return {...s, playSpeed, interval}
         })
