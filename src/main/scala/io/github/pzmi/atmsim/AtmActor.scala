@@ -102,3 +102,6 @@ case class Refill(override val time: Instant,
                   override val eventType: String = "refill",
                   amount: Int,
                   balance: Int = 0) extends Event(time, eventType, atm)
+
+case class PreparedToStart(override val time: Instant,
+                           override val atm: String) extends Event(time, "prepared-to-start", atm)

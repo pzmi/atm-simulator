@@ -1,5 +1,6 @@
 package io.github.pzmi.atmsim
 
+import java.io.{BufferedWriter, File, FileWriter}
 import java.nio.file.Paths
 
 import akka.http.scaladsl.model.StatusCodes
@@ -33,7 +34,7 @@ class Server(implicit private val materializer: Materializer,
   implicit val serialization: Serialization.type = jackson.Serialization
 
   private val configString: String = scala.io.Source.fromResource("config.json").getLines.mkString("\n")
-  val config: Config = Serialization.read[Config](configString)
+  val defaultConfig: Config = Serialization.read[Config](configString)
 
   implicit def rejectionHandler: RejectionHandler =
     RejectionHandler.newBuilder().handleAll[MethodRejection] { rejections =>
@@ -49,7 +50,7 @@ class Server(implicit private val materializer: Materializer,
     }.result()
 
   val appRoute = getFromResource("webapp/index.html")
-  val configRoute = path("config") {
+  val configRoute = path("config" / Segment) { simulationName =>
     get {
       respondWithHeaders(List(
         `Access-Control-Allow-Origin`.*,
@@ -57,12 +58,21 @@ class Server(implicit private val materializer: Materializer,
         `Access-Control-Allow-Headers`("Authorization",
           "Content-Type", "X-Requested-With"),
       )) {
-        complete(config)
+        val returnConfig = if (simulationName == "default") {
+          defaultConfig
+        } else {
+          val source = scala.io.Source.fromFile(s"$simulationName-config.json", "UTF-8")
+          val simulationConfigString = source.getLines.mkString("\n")
+          source.close()
+          Serialization.read[Config](simulationConfigString)
+        }
+
+        complete(returnConfig)
       }
     }
   }
 
-  val simulationRoute = path("simulation" / Segment) { fileName =>
+  val simulationRoute = path("simulation" / Segment) { simulationName =>
     post {
       respondWithHeaders(List(
         `Access-Control-Allow-Origin`.*,
@@ -71,8 +81,14 @@ class Server(implicit private val materializer: Materializer,
           "Content-Type", "X-Requested-With"),
       )) {
         entity(as[Config]) { c =>
-          logger.info(s"Received config: ${c}")
-          Simulation.start(1L, c, 100, c.startDate, c.endDate, fileName)
+          logger.info(s"Received config: $c")
+          Simulation.start(1L, c, 100, c.startDate, c.endDate, simulationName)
+
+          val receivedConfigString = Serialization.write[Config](c)
+          val file = new File(s"$simulationName-config.json")
+          val bw = new BufferedWriter(new FileWriter(file))
+          bw.write(receivedConfigString)
+          bw.close()
           complete(StatusCodes.NoContent)
         }
       }
@@ -86,10 +102,10 @@ class Server(implicit private val materializer: Materializer,
 
   var pingSource = Source.tick(1 second, 10 second, TextMessage("ping"))
 
-  val websocket = path("websocket" / Segment) { fileName =>
+  val websocket = path("websocket" / Segment) { simulationName =>
     extractUpgradeToWebSocket { upgrade =>
       def fileSource = {
-        val file = Paths.get(s"$fileName.log")
+        val file = Paths.get(s"$simulationName.log")
         FileIO.fromPath(file)
           .via(Framing
             .delimiter(ByteString("\n"), 4096, allowTruncation = true)

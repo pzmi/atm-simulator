@@ -71,6 +71,5 @@ object InstantSerializer extends CustomSerializer[Instant](_ => ( {
   case JInt(millis) =>
     Instant.ofEpochMilli(millis.longValue())
 }, {
-  case instant: Instant => JString(instant.toEpochMilli.toString)
   case instant: Instant => JInt(instant.toEpochMilli)
 }))

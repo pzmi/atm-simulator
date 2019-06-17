@@ -4,7 +4,8 @@
   "default": {
     "refillAmount": 10000,
     "refillDelayHours": 5,
-    "load": 2
+    "load": 2,
+    "scheduledRefillInterval": 72
   },
   "withdrawal": {
     "min": 10,

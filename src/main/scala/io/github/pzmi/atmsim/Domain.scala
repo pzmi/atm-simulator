@@ -7,13 +7,14 @@ import org.json4s.{CustomSerializer, JString}
 case class Config(startDate: Instant, endDate: Instant, default: DefaultProperties, withdrawal: WithdrawalProperties,
                   atms: List[AtmProperties])
 
-case class DefaultProperties(refillAmount: Int, refillDelayHours: Int, load: Int)
+case class DefaultProperties(refillAmount: Int, refillDelayHours: Int, load: Int, scheduledRefillInterval: Int)
 
 case class AtmProperties(name: String, location: List[Double],
                          atmDefaultLoad: Option[Int],
                          refillAmount: Option[Int],
                          refillDelayHours: Option[Int],
-                         hourly: Map[String, HourlyProperties] = Map.empty)
+                         hourly: Map[String, HourlyProperties] = Map.empty,
+                         scheduledRefillInterval: Option[Int])
 
 
 case class HourlyProperties(load: Int)

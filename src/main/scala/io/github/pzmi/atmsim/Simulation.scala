@@ -23,7 +23,7 @@ object Simulation extends StrictLogging {
                                       executionContext: ExecutionContext): Unit = {
     Random.setSeed(randomSeed)
 
-    val (outputActor, sideEffects, atms) = prepareActors(config, fileName)
+    val (outputActor, sideEffects, atms) = prepareActors(config, fileName, startDate)
     val generatorActor = system.actorOf(
       GeneratorActor.props(atms, eventsPerHour, startDate, endDate, outputActor, sideEffects, config), "generator")
     generatorActor ! StartGeneration()
@@ -35,8 +35,8 @@ object Simulation extends StrictLogging {
     })
   }
 
-  private def prepareActors(config: Config, fileName: String)(implicit materializer: Materializer) = {
-    val sideEffects = system.actorOf(SideEffectsActor.props(config), "side-effects")
+  private def prepareActors(config: Config, fileName: String, startDate: Instant)(implicit materializer: Materializer) = {
+    val sideEffects = system.actorOf(SideEffectsActor.props(config, startDate), "side-effects")
     val outputActor = system.actorOf(OutputActor.props(sideEffects, fileName), "output")
     val atmActors: Array[ActorRef] = prepareAtms(config, outputActor)
     (outputActor, sideEffects, atmActors)

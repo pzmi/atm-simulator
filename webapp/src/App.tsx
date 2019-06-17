@@ -37,6 +37,8 @@ interface State {
     endHour: number
     playSpeed: number
     paused: boolean
+    editing: boolean
+    simulationName: string
 }
 
 const cracowLocation = [50.06143, 19.944544];
@@ -66,6 +68,7 @@ class App extends React.Component<any, State> {
     public state: State = {
         atms: [],
         config: {},
+        editing: true,
         endDate: new Date(this.now.getFullYear(), this.now.getMonth(), this.now.getDate() + 7),
         endHour: this.now.getHours(),
         events: [],
@@ -74,6 +77,7 @@ class App extends React.Component<any, State> {
         playSpeed: 1,
         selectedDate: this.now,
         selectedHour: this.now.getHours(),
+        simulationName: "simulation",
         startDate: this.now,
         startHour: this.now.getHours(),
         zoom: 14
@@ -82,17 +86,28 @@ class App extends React.Component<any, State> {
     private websocket;
 
     public componentDidMount(): void {
-        this.loadConfig();
-        this.websocket = new WebSocket(`ws://${server}/websocket/output`);
-        this.websocket.onopen = () => this.websocket.send("hello");
-        this.websocket.onmessage = (m) => {
-            if (m.data === "ping") {
-                console.log("ping")
-            } else {
-                const events = JSON.parse(m.data);
-                const sideEffectEvents = events.filter(e => App.isSideEffect(e));
-                this.addToSideEffectsBox(sideEffectEvents, 0);
+        const path = window.location.pathname;
+        console.log(`Path is: ${path}`);
 
+        const editing = path === "/";
+        this.setState(s => {
+            return {...s, editing}
+        });
+
+        if (editing) {
+            this.loadConfig();
+        } else {
+            this.loadConfig(path);
+            this.websocket = new WebSocket(`ws://${server}/websocket${path}`);
+            this.websocket.onopen = () => this.websocket.send("hello");
+            this.websocket.onmessage = (m) => {
+                if (m.data === "ping") {
+                    console.log("ping")
+                } else {
+                    const events = JSON.parse(m.data);
+                    const sideEffectEvents = events.filter(e => App.isSideEffect(e));
+                    this.addToSideEffectsBox(sideEffectEvents, 0);
+                }
             }
         }
     }
@@ -110,51 +125,66 @@ class App extends React.Component<any, State> {
 
                     </Map>
                     <div className="right-panel">
-                        <div>
-                            <div>Start date: <input type="date" name="startDate"
-                                                    value={App.datepickerFormat(this.state.startDate)}
-                                                    onChange={this.startDateChanged}/>
-                            </div>
-                            <div>Start hour: <input type="number" name="startHour"
-                                                    min="0"
-                                                    max="24"
-                                                    value={this.state.startHour}
-                                                    onChange={this.startHourChanged}/>
-                            </div>
-                            <div>End date: <input type="date" name="endDate"
-                                                  value={App.datepickerFormat(this.state.endDate)}
-                                                  onChange={this.endDateChanged}/>
-                            </div>
-                            <div>End hour: <input type="number" name="endHour"
-                                                  min="0"
-                                                  max="24"
-                                                  value={this.state.endHour}
-                                                  onChange={this.endHourChanged}/>
-                            </div>
-                            <div>
-                                <button onClick={this.startSimulation}>Start simulation</button>
-                            </div>
-                            <div>
-                                Simulation speed
-                                <button onClick={this.decelerate}>-</button>
-                                {this.state.paused ?
-                                    <button onClick={this.resume}>▶</button>
-                                    : <button onClick={this.pause}>||</button>}
-                                <button onClick={this.accelerate}>+</button>
-                            </div>
-                        </div>
-                        <div className="Events-banner">
-                            Events
-                        </div>
-                        <div className="Events-container">
-                            {this.state.events
-                                .map((m: Props, i) => <Event key={i} eventData={m}/>)
-                            }
-                        </div>
+                        {this.state.editing ? this.editPanel() : this.playbackPanel()}
                     </div>
                 </div>
             </div>
         );
+    }
+
+    private playbackPanel() {
+        return <div>
+            <div>
+                <div>
+                    Simulation speed
+                    <button onClick={this.decelerate}>-</button>
+                    {this.state.paused ?
+                        <button onClick={this.resume}>▶</button>
+                        : <button onClick={this.pause}>||</button>}
+                    <button onClick={this.accelerate}>+</button>
+                </div>
+            </div>
+            <div className="Events-banner">
+                Events
+            </div>
+            <div className="Events-container">
+                {this.state.events
+                    .map((m: Props, i) => <Event key={i} eventData={m}/>)
+                }
+            </div>
+        </div>;
+    }
+
+    private editPanel() {
+        return <div>
+            <div>Start date: <input type="date" name="startDate"
+                                    value={App.datepickerFormat(this.state.startDate)}
+                                    onChange={this.startDateChanged}/>
+            </div>
+            <div>Start hour: <input type="number" name="startHour"
+                                    min="0"
+                                    max="24"
+                                    value={this.state.startHour}
+                                    onChange={this.startHourChanged}/>
+            </div>
+            <div>End date: <input type="date" name="endDate"
+                                  value={App.datepickerFormat(this.state.endDate)}
+                                  onChange={this.endDateChanged}/>
+            </div>
+            <div>End hour: <input type="number" name="endHour"
+                                  min="0"
+                                  max="24"
+                                  value={this.state.endHour}
+                                  onChange={this.endHourChanged}/>
+            </div>
+            <div>Simulation name: <input type="string" name="simulationName"
+                                  value={this.state.simulationName}
+                                  onChange={this.simulationNameChanged}/>
+            </div>
+            <div>
+                <button onClick={this.startSimulation}>Start simulation</button>
+            </div>
+        </div>;
     }
 
     private addToSideEffectsBox(events, index: number) {
@@ -177,8 +207,9 @@ class App extends React.Component<any, State> {
         }
     }
 
-    private loadConfig() {
-        axios.get(`http://${server}/config`,
+    private loadConfig(simulationPath: string = "/default") {
+        console.log(`Loading config: ${simulationPath}`);
+        axios.get(`http://${server}/config${simulationPath}`,
             {headers: {Accept: "application/json"}})
             .then(r => {
                 this.setState(s => {
@@ -253,6 +284,11 @@ class App extends React.Component<any, State> {
         this.setState({...this.state, endHour});
     };
 
+    private simulationNameChanged = (e) => {
+        console.log(`Simulation name changed to ${e.target.value}`);
+        this.setState({...this.state, simulationName: e.target.value});
+    };
+
     private pause = () => {
         console.log("Pause pressed");
         const paused = true;
@@ -312,7 +348,7 @@ class App extends React.Component<any, State> {
     }
 
     private startSimulation = () => {
-        axios.post(`http://${server}/simulation/a`,
+        axios.post(`http://${server}/simulation/${this.state.simulationName}`,
             {
                 atms: this.state.atms,
                 default: this.state.config.default,
@@ -322,7 +358,7 @@ class App extends React.Component<any, State> {
                 startHour: this.state.selectedHour,
                 withdrawal: this.state.config.withdrawal,
             })
-            .then(response => console.log(`Simulation response ${response}`))
+            .then(response => console.log(`Simulation response ${JSON.stringify(response)}`))
             .catch(errorResponse => `Simulation error ${errorResponse}`)
     };
 
