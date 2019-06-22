@@ -64,7 +64,8 @@ class Server(implicit private val materializer: Materializer,
           val source = scala.io.Source.fromFile(s"$simulationName-config.json", "UTF-8")
           val simulationConfigString = source.getLines.mkString("\n")
           source.close()
-          Serialization.read[Config](simulationConfigString)
+          val config = Serialization.read[Config](simulationConfigString)
+          config
         }
 
         complete(returnConfig)
@@ -82,7 +83,7 @@ class Server(implicit private val materializer: Materializer,
       )) {
         entity(as[Config]) { c =>
           logger.info(s"Received config: $c")
-          Simulation.start(1L, c, 100, c.startDate, c.endDate, simulationName)
+          Simulation.start(1L, c, c.eventsPerHour, c.startDate, c.endDate, simulationName)
 
           val receivedConfigString = Serialization.write[Config](c)
           val file = new File(s"$simulationName-config.json")
@@ -115,7 +116,6 @@ class Server(implicit private val materializer: Materializer,
           .map(concatenated => s"[$concatenated]")
           .wireTap(_ => logger.info("Sending message to client"))
           .map(TextMessage(_))
-          .merge(pingSource)
       }
 
       val onDemandDataFlow = Flow[Message]

@@ -4,6 +4,7 @@ import * as  L from 'leaflet';
 import * as React from 'react';
 // @ts-ignore
 import {Map, Marker, Popup, TileLayer} from "react-leaflet";
+import shortid from 'shortid'
 import './App.css';
 import AtmPopup from "./AtmPopup";
 import {Event, Props} from './Event'
@@ -15,6 +16,7 @@ interface HourlyAtm {
 }
 
 export interface Atm {
+    currentAmount: number
     location: number[]
     name: string
     refillAmount: number
@@ -27,8 +29,9 @@ interface State {
     readonly config: any
     atms: Atm[]
     events: Props[]
+    eventsPerHour: number
     zoom: number
-    interval: number,
+    interval: number
     selectedDate: Date
     selectedHour: number
     startDate: Date
@@ -39,24 +42,25 @@ interface State {
     paused: boolean
     editing: boolean
     simulationName: string
+    simulationTime: Date
 }
 
 const cracowLocation = [50.06143, 19.944544];
 
 const icon = L.icon({
     iconRetinaUrl: notesBig,
-    iconSize: [48, 48], // size of the icon,
+    iconSize: [48, 48],
     iconUrl: notes
 });
 
-const sideEffects = ["out-of-money", "not-enough-money", "refill"];
+const sideEffectTypes = ["out-of-money", "not-enough-money", "refill"];
 
 const server = "localhost:8080";
 
 class App extends React.Component<any, State> {
 
     private static isSideEffect(m) {
-        return sideEffects.includes(m.eventType);
+        return sideEffectTypes.includes(m.eventType);
     }
 
     private static datepickerFormat(selectedDate) {
@@ -72,12 +76,14 @@ class App extends React.Component<any, State> {
         endDate: new Date(this.now.getFullYear(), this.now.getMonth(), this.now.getDate() + 7),
         endHour: this.now.getHours(),
         events: [],
+        eventsPerHour: 100,
         interval: 1000,
         paused: false,
         playSpeed: 1,
         selectedDate: this.now,
         selectedHour: this.now.getHours(),
         simulationName: "simulation",
+        simulationTime: new Date(),
         startDate: this.now,
         startHour: this.now.getHours(),
         zoom: 14
@@ -104,9 +110,10 @@ class App extends React.Component<any, State> {
                 if (m.data === "ping") {
                     console.log("ping")
                 } else {
-                    const events = JSON.parse(m.data);
-                    const sideEffectEvents = events.filter(e => App.isSideEffect(e));
-                    this.addToSideEffectsBox(sideEffectEvents, 0);
+                    const events: Props[] = JSON.parse(m.data);
+                    console.log(`Received ${events.length} events`);
+
+                    this.processEvents(events);
                 }
             }
         }
@@ -132,9 +139,83 @@ class App extends React.Component<any, State> {
         );
     }
 
+    private processEvents(events: Props[]) {
+        if (events.length === 0) {
+            return;
+        }
+
+        if (this.state.paused) {
+            window.setTimeout(()=> this.processEvents(events), 100);
+        } else {
+
+            this.setState(s => {
+                return {...s, simulationTime: new Date(events[0].time)}
+            });
+
+            const endOfHourEventId = events.findIndex(e => e.time !== this.state.simulationTime.getTime());
+
+            if (endOfHourEventId !== -1) {
+                console.log(`Found end of hour on id ${endOfHourEventId}`);
+
+                const thisHourEvents = events.slice(0, endOfHourEventId);
+                const followingHourEvents = events.slice(endOfHourEventId);
+
+                console.log(`${thisHourEvents.length} in current hour, ${followingHourEvents.length} remaining`);
+                this.updateGuiState(thisHourEvents);
+
+                window.setTimeout(() => {
+                    this.processEvents(followingHourEvents);
+                }, this.state.interval);
+            } else {
+                console.log("Full batch in current hour");
+                this.updateGuiState(events);
+                console.log("Sending batch finished from full batch path");
+                this.websocket.send("Batch finished")
+            }
+        }
+    }
+
+    private updateGuiState(events) {
+        const atmEvents = {};
+        const sideEffects: Props[] = [];
+        events.forEach((event: Props) => {
+            if (App.isSideEffect(event)) {
+                event.id = `${event.atm}-${event.time}-${event.eventType}-${shortid.generate()}`;
+                sideEffects.push(event)
+            }
+
+            const balance = "balance";
+            if (event[balance] !== undefined) {
+                if (atmEvents[event.atm] === undefined) {
+                    atmEvents[event.atm] = [event]
+                } else {
+                    atmEvents[event.atm].push(event)
+                }
+            }
+        });
+
+        const atms = this.state.atms.map(atm => {
+            const currentAtmEvents = atmEvents[atm.name];
+            if (currentAtmEvents !== undefined) {
+                const currentAmount = currentAtmEvents[currentAtmEvents.length - 1].balance;
+                return {...atm, currentAmount}
+            }
+
+            return atm;
+        });
+
+        this.setState((s) => {
+            const newEvents = sideEffects.reverse().concat(s.events).slice(0, 100);
+            return {...s, atms, events: newEvents}
+        });
+    }
+
     private playbackPanel() {
         return <div>
             <div>
+                <div>
+                    Simulation time: {this.state.simulationTime.toLocaleString()}
+                </div>
                 <div>
                     Simulation speed
                     <button onClick={this.decelerate}>-</button>
@@ -149,7 +230,7 @@ class App extends React.Component<any, State> {
             </div>
             <div className="Events-container">
                 {this.state.events
-                    .map((m: Props, i) => <Event key={i} eventData={m}/>)
+                    .map((m: Props) => <Event key={m.id} eventData={m}/>)
                 }
             </div>
         </div>;
@@ -177,34 +258,20 @@ class App extends React.Component<any, State> {
                                   value={this.state.endHour}
                                   onChange={this.endHourChanged}/>
             </div>
+            <div>Withdrawals per hour: <input type="number" name="eventsPerHour"
+                                              min="1"
+                                              max="1000"
+                                              value={this.state.eventsPerHour}
+                                              onChange={this.eventsPerHourChanged}/>
+            </div>
             <div>Simulation name: <input type="string" name="simulationName"
-                                  value={this.state.simulationName}
-                                  onChange={this.simulationNameChanged}/>
+                                         value={this.state.simulationName}
+                                         onChange={this.simulationNameChanged}/>
             </div>
             <div>
                 <button onClick={this.startSimulation}>Start simulation</button>
             </div>
         </div>;
-    }
-
-    private addToSideEffectsBox(events, index: number) {
-        if (this.state.paused) {
-            window.setTimeout(() => {
-                this.addToSideEffectsBox(events, index)
-            }, 100)
-        } else {
-            window.setTimeout(() => {
-                this.setState((s) => {
-                    return {...s, events: [events[index], ...s.events]}
-                });
-                if (index < events.length - 1) {
-                    window.setTimeout(() => this.addToSideEffectsBox(events, index + 1),
-                        this.state.interval);
-                } else {
-                    this.websocket.send("Batch finished")
-                }
-            }, this.state.interval);
-        }
     }
 
     private loadConfig(simulationPath: string = "/default") {
@@ -213,7 +280,17 @@ class App extends React.Component<any, State> {
             {headers: {Accept: "application/json"}})
             .then(r => {
                 this.setState(s => {
-                    return {...s, atms: r.data.atms, config: r.data}
+                    const atms = r.data.atms.map(a => {
+                        return {...a, currentAmount: a.refillAmount}
+                    });
+                    const startDate = new Date(r.data.startDate);
+                    const startHour = startDate.getHours();
+                    const endDate = new Date(r.data.endDate);
+                    const endHour = endDate.getHours();
+                    return {
+                        ...s, atms, config: r.data, endDate, endHour, simulationTime: startDate,
+                        startDate, startHour
+                    }
                 });
             });
     }
@@ -228,6 +305,10 @@ class App extends React.Component<any, State> {
 
     private atmDefaultLoadChanged(atm) {
         return this.withChangedValueFromEvent(atm, "atmDefaultLoad");
+    }
+
+    private scheduledRefillIntervalChanged(atm) {
+        return this.withChangedValueFromEvent(atm, "scheduledRefillInterval");
     }
 
     private hourlyLoadChanged(atm, timestamp: number) {
@@ -284,6 +365,12 @@ class App extends React.Component<any, State> {
         this.setState({...this.state, endHour});
     };
 
+    private eventsPerHourChanged = (e) => {
+        console.log(`Events per hour changed to ${e.target.value}`);
+        const eventsPerHour = Number.parseInt(e.target.value, undefined);
+        this.setState({...this.state, eventsPerHour});
+    };
+
     private simulationNameChanged = (e) => {
         console.log(`Simulation name changed to ${e.target.value}`);
         this.setState({...this.state, simulationName: e.target.value});
@@ -327,6 +414,7 @@ class App extends React.Component<any, State> {
                 <Popup>
                     <AtmPopup atm={a}
                               default={this.state.config.default}
+                              editing={this.state.editing}
                               selectedDate={App.datepickerFormat(selectedDate)}
                               selectedHour={this.state.selectedHour}
                               refillAmountChanged={this.refillAmountChanged(a)}
@@ -335,6 +423,7 @@ class App extends React.Component<any, State> {
                               selectedDateChanged={this.selectedDateChanged}
                               selectedHourChanged={this.selectedHourChanged}
                               hourlyLoadChanged={this.hourlyLoadChanged(a, this.getTimestamp())}
+                              scheduledRefillIntervalChanged={this.scheduledRefillIntervalChanged(a)}
                     />
                 </Popup>
             </Marker>
@@ -348,14 +437,17 @@ class App extends React.Component<any, State> {
     }
 
     private startSimulation = () => {
+        const startDate = new Date(this.state.startDate);
+        startDate.setHours(this.state.startHour, 0, 0, 0);
+        const endDate = new Date(this.state.endDate);
+        endDate.setHours(this.state.endHour, 0, 0, 0);
         axios.post(`http://${server}/simulation/${this.state.simulationName}`,
             {
                 atms: this.state.atms,
                 default: this.state.config.default,
-                endDate: this.state.endDate,
-                endHour: this.state.endHour,
-                startDate: this.state.startDate,
-                startHour: this.state.selectedHour,
+                endDate,
+                eventsPerHour: this.state.eventsPerHour,
+                startDate,
                 withdrawal: this.state.config.withdrawal,
             })
             .then(response => console.log(`Simulation response ${JSON.stringify(response)}`))

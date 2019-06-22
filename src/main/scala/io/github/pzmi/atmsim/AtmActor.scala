@@ -44,7 +44,7 @@ class AtmActor(output: ActorRef, startingBalance: Int) extends Actor with ActorL
   private def calculateBalance(currentBalance: Int, e: Event): Int =
     e match {
       case Withdrawal(_, amount, _, _, _) => calculateBalance(currentBalance, -amount, e)
-      case Refill(_, _, _, amount, _) => calculateBalance(currentBalance, amount, e)
+      case Refill(_, _, _, amount, _) => calculateBalance(0, amount, e)
       case e => throw new IllegalArgumentException(s"Event not handled: $e")
     }
 

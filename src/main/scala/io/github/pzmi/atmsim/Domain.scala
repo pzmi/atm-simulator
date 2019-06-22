@@ -5,7 +5,7 @@ import java.time.Instant
 import org.json4s.{CustomSerializer, JString}
 
 case class Config(startDate: Instant, endDate: Instant, default: DefaultProperties, withdrawal: WithdrawalProperties,
-                  atms: List[AtmProperties])
+                  atms: List[AtmProperties], eventsPerHour: Int)
 
 case class DefaultProperties(refillAmount: Int, refillDelayHours: Int, load: Int, scheduledRefillInterval: Int)
 
