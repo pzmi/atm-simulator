@@ -6,6 +6,7 @@ import akka.Done
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
 import akka.util.Timeout
+import org.json4s.{CustomSerializer, JString}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -20,39 +21,37 @@ class AtmActor(output: ActorRef, startingBalance: Int) extends Actor with ActorL
   override def receive: Receive = operational(startingBalance)
 
   private def outOfMoney: Receive = {
-    case w: Withdrawal => sendToOutputAndAck(0, w)
-      sendToOutputAndAck(0, OutOfMoney(w.time))
-    case r: Refill => {
+    case w: Withdrawal => sendToOutputAndAck(0, w, OutOfMoneyState)
+      sendToOutputAndAck(0, OutOfMoney(w.time), OutOfMoneyState)
+    case r: Refill =>
       handleOperational(0, r)
-    }
   }
 
   private def operational(currentBalance: Int): Receive = {
     case w: Withdrawal => handleOperational(currentBalance, w)
-    case r: Refill => {
+    case r: Refill =>
       handleOperational(currentBalance, r)
-    }
     case e => throw new IllegalArgumentException(s"Received invalid event $e from ${sender()}")
   }
 
   private def handleOperational(currentBalance: Int, event: Event): Unit = {
     log.debug("Received event: [{}]", event)
     val newBalance: Int = calculateBalance(currentBalance, event)
-    sendToOutputAndAck(newBalance, event)
+    sendToOutputAndAck(newBalance, event, OperationalState)
   }
 
   private def calculateBalance(currentBalance: Int, e: Event): Int =
     e match {
-      case Withdrawal(_, amount, _, _, _) => calculateBalance(currentBalance, -amount, e)
-      case Refill(_, _, _, amount, _) => calculateBalance(0, amount, e)
-      case e => throw new IllegalArgumentException(s"Event not handled: $e")
+      case Withdrawal(_, amount, _, _, _,_) => calculateBalance(currentBalance, -amount, e)
+      case Refill(_, _, _, amount, _,_) => calculateBalance(0, amount, e)
+      case _ => throw new IllegalArgumentException(s"Event not handled: $e")
     }
 
   private def calculateBalance(currentBalance: Int, amount: Int, e: Event): Int =
     currentBalance + amount match {
-      case newBalance if newBalance < 0 => sendToOutputAndAck(currentBalance, NotEnoughMoney(e.time))
+      case newBalance if newBalance < 0 => sendToOutputAndAck(currentBalance, NotEnoughMoney(e.time), OperationalState)
         currentBalance
-      case newBalance if newBalance == 0 => sendToOutputAndAck(newBalance, OutOfMoney(e.time))
+      case newBalance if newBalance == 0 => sendToOutputAndAck(newBalance, OutOfMoney(e.time), OutOfMoneyState)
         context.become(outOfMoney)
         newBalance
       case newBalance if newBalance > 0 =>
@@ -60,8 +59,8 @@ class AtmActor(output: ActorRef, startingBalance: Int) extends Actor with ActorL
         newBalance
     }
 
-  private def sendToOutputAndAck(newBalance: Int, event: Event): Unit = {
-    sendToOutputAndAck(updateBalanceAndAtm(newBalance, event))
+  private def sendToOutputAndAck(newBalance: Int, event: Event, state: AtmState): Unit = {
+    sendToOutputAndAck(updateBalanceAndAtm(newBalance, event, state))
 
     def sendToOutputAndAck(e: Event): Unit = {
       implicit val timeout: Timeout = Timeout(30 seconds)
@@ -69,11 +68,11 @@ class AtmActor(output: ActorRef, startingBalance: Int) extends Actor with ActorL
       sender() ! Done
     }
 
-    def updateBalanceAndAtm(newBalance: Int, event: Event) = event match {
-      case w: Withdrawal => w.copy(balance = newBalance, atm = name)
+    def updateBalanceAndAtm(newBalance: Int, event: Event, state: AtmState) = event match {
+      case w: Withdrawal => w.copy(balance = newBalance, atm = name, state = state)
       case o: OutOfMoney => o.copy(atm = name)
       case n: NotEnoughMoney => n.copy(atm = name)
-      case r: Refill => r.copy(balance = newBalance, atm = name)
+      case r: Refill => r.copy(balance = newBalance, atm = name, state = state)
       case _: Event => throw new IllegalStateException("Event is not a correct event")
     }
   }
@@ -87,7 +86,8 @@ case class Withdrawal(override val time: Instant,
                       amount: Int,
                       override val atm: String = "unknown",
                       override val eventType: String = "withdrawal",
-                      balance: Int = 0) extends Event(time, eventType, atm)
+                      balance: Int = 0,
+                      state: AtmState = OperationalState) extends Event(time, eventType, atm)
 
 case class OutOfMoney(override val time: Instant,
                       override val atm: String = "unknown",
@@ -101,7 +101,22 @@ case class Refill(override val time: Instant,
                   override val atm: String = "unknown",
                   override val eventType: String = "refill",
                   amount: Int,
-                  balance: Int = 0) extends Event(time, eventType, atm)
+                  balance: Int = 0,
+                  state: AtmState = OperationalState) extends Event(time, eventType, atm)
 
 case class PreparedToStart(override val time: Instant,
                            override val atm: String) extends Event(time, "prepared-to-start", atm)
+
+sealed abstract class AtmState
+case object OperationalState extends AtmState
+case object OutOfMoneyState extends AtmState
+
+object AtmStateSerializer extends CustomSerializer[AtmState](_ => ( {
+  case JString("Operational") => OperationalState
+  case JString("OutOfMoney") => OutOfMoneyState
+  case _ => throw new IllegalArgumentException("No such distribution supported")
+
+}, {
+  case OperationalState => JString("Operational")
+  case OutOfMoneyState => JString("OutOfMoney")
+}))

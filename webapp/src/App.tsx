@@ -8,8 +8,15 @@ import shortid from 'shortid'
 import './App.css';
 import AtmPopup from "./AtmPopup";
 import {Event, Props} from './Event'
-import notesBig from './notes-x2.png'
-import notes from './notes.png'
+import atmBlueAlert from './icons/atm-blue-alert.png'
+import atmBlue from './icons/atm-blue.png'
+import atmGreenAlert from './icons/atm-green-alert.png'
+import atmGreen from './icons/atm-green.png'
+import atmRedAlert from './icons/atm-red-alert.png'
+import atmRed from './icons/atm-red.png'
+import atmYellowAlert from './icons/atm-yellow-alert.png'
+import atmYellow from './icons/atm-yellow.png'
+import {LoadOptions} from "./LoadOptions";
 
 interface HourlyAtm {
     load: number
@@ -23,11 +30,28 @@ export interface Atm {
     refillDelayHours: number
     atmDefaultLoad: number
     hourly: { string: HourlyAtm }
+    state: string
+}
+
+export interface Withdrawal {
+    min: number
+    max: number
+    mean: number
+    stddev: number
+    distribution: string
+}
+
+interface Defaults {
+    refillAmount: number
+    refillDelayHours: number
+    load: number
+    scheduledRefillInterval: number
 }
 
 interface State {
     readonly config: any
     atms: Atm[]
+    default: Defaults
     events: Props[]
     eventsPerHour: number
     zoom: number
@@ -43,17 +67,61 @@ interface State {
     editing: boolean
     simulationName: string
     simulationTime: Date
+    withdrawal: Withdrawal
 }
 
 const cracowLocation = [50.06143, 19.944544];
 
-const icon = L.icon({
-    iconRetinaUrl: notesBig,
+const atmLow = L.icon({
+    iconRetinaUrl: atmRed,
     iconSize: [48, 48],
-    iconUrl: notes
+    iconUrl: atmRed
 });
 
-const sideEffectTypes = ["out-of-money", "not-enough-money", "refill"];
+const atmMid = L.icon({
+    iconRetinaUrl: atmYellow,
+    iconSize: [48, 48],
+    iconUrl: atmYellow
+});
+
+const atmHigh = L.icon({
+    iconRetinaUrl: atmBlue,
+    iconSize: [48, 48],
+    iconUrl: atmBlue
+});
+
+const atmFull = L.icon({
+    iconRetinaUrl: atmGreen,
+    iconSize: [48, 48],
+    iconUrl: atmGreen
+});
+
+const atmLowAlert = L.icon({
+    iconRetinaUrl: atmRedAlert,
+    iconSize: [48, 48],
+    iconUrl: atmRedAlert
+});
+
+const atmMidAlert = L.icon({
+    iconRetinaUrl: atmYellowAlert,
+    iconSize: [48, 48],
+    iconUrl: atmYellowAlert
+});
+
+const atmHighAlert = L.icon({
+    iconRetinaUrl: atmBlueAlert,
+    iconSize: [48, 48],
+    iconUrl: atmBlueAlert
+});
+
+const atmFullAlert = L.icon({
+    iconRetinaUrl: atmGreenAlert,
+    iconSize: [48, 48],
+    iconUrl: atmGreenAlert
+});
+
+const sideEffectTypes = ["out-of-money", "not-enough-money"];
+const withdrawalDistributionTypes = ["Gaussian", "Uniform"];
 
 const server = "localhost:8080";
 
@@ -67,11 +135,35 @@ class App extends React.Component<any, State> {
         return dateFormat(selectedDate, "yyyy-mm-dd");
     }
 
+    private static getIcon(atm: Atm) {
+        const isAlert = App.isAlert(atm);
+        const fillPercentage = atm.currentAmount / atm.refillAmount * 100;
+        if (fillPercentage < 10) {
+            return isAlert ? atmLowAlert : atmLow;
+        } else if (fillPercentage < 50) {
+            return isAlert ? atmMidAlert : atmMid;
+        } else if (fillPercentage < 100) {
+            return isAlert ? atmHighAlert : atmHigh;
+        } else {
+            return isAlert ? atmFullAlert : atmFull;
+        }
+    }
+
+    private static isAlert(atm: Atm) {
+        return atm.state !== "Operational";
+    }
+
     public now = new Date();
 
     public state: State = {
         atms: [],
         config: {},
+        default: {
+            refillAmount: 100000,
+            refillDelayHours: 5,
+            load: 2,
+            scheduledRefillInterval: 72,
+        },
         editing: true,
         endDate: new Date(this.now.getFullYear(), this.now.getMonth(), this.now.getDate() + 7),
         endHour: this.now.getHours(),
@@ -86,6 +178,13 @@ class App extends React.Component<any, State> {
         simulationTime: new Date(),
         startDate: this.now,
         startHour: this.now.getHours(),
+        withdrawal: {
+            distribution: "Gaussian",
+            max: 10000,
+            mean: 100,
+            min: 10,
+            stddev: 300
+        },
         zoom: 14
     };
 
@@ -145,7 +244,7 @@ class App extends React.Component<any, State> {
         }
 
         if (this.state.paused) {
-            window.setTimeout(()=> this.processEvents(events), 100);
+            window.setTimeout(() => this.processEvents(events), 100);
         } else {
 
             this.setState(s => {
@@ -176,7 +275,8 @@ class App extends React.Component<any, State> {
     }
 
     private updateGuiState(events) {
-        const atmEvents = {};
+        const atmBalances = {};
+        const atmStates = {};
         const sideEffects: Props[] = [];
         events.forEach((event: Props) => {
             if (App.isSideEffect(event)) {
@@ -186,22 +286,42 @@ class App extends React.Component<any, State> {
 
             const balance = "balance";
             if (event[balance] !== undefined) {
-                if (atmEvents[event.atm] === undefined) {
-                    atmEvents[event.atm] = [event]
+                if (atmBalances[event.atm] === undefined) {
+                    atmBalances[event.atm] = [event]
                 } else {
-                    atmEvents[event.atm].push(event)
+                    atmBalances[event.atm].push(event)
+                }
+            }
+
+            const state = "state";
+            if (event[state] !== undefined) {
+                if (atmStates[event.atm] === undefined) {
+                    atmStates[event.atm] = [event]
+                } else {
+                    atmStates[event.atm].push(event)
                 }
             }
         });
 
         const atms = this.state.atms.map(atm => {
-            const currentAtmEvents = atmEvents[atm.name];
-            if (currentAtmEvents !== undefined) {
-                const currentAmount = currentAtmEvents[currentAtmEvents.length - 1].balance;
-                return {...atm, currentAmount}
-            }
+            const currentAtmBalances = atmBalances[atm.name];
+            const currentAtmStates = atmStates[atm.name];
 
-            return atm;
+            if (currentAtmBalances !== undefined || currentAtmStates !== undefined) {
+                const newAtm = {...atm};
+
+                if (currentAtmBalances !== undefined) {
+                    newAtm.currentAmount = currentAtmBalances[currentAtmBalances.length - 1].balance;
+                }
+
+                if (currentAtmStates !== undefined) {
+                    newAtm.state = currentAtmStates[currentAtmStates.length - 1].state;
+                }
+
+                return newAtm;
+            } else {
+                return atm;
+            }
         });
 
         this.setState((s) => {
@@ -238,40 +358,131 @@ class App extends React.Component<any, State> {
 
     private editPanel() {
         return <div>
-            <div>Start date: <input type="date" name="startDate"
-                                    value={App.datepickerFormat(this.state.startDate)}
-                                    onChange={this.startDateChanged}/>
+            <div className="EditPanel-sectionLabel">
+                General simulation settings
             </div>
-            <div>Start hour: <input type="number" name="startHour"
-                                    min="0"
-                                    max="24"
-                                    value={this.state.startHour}
-                                    onChange={this.startHourChanged}/>
+            <div className="EditPanel-variable">
+                Simulation name: <input type="string" name="simulationName"
+                                        value={this.state.simulationName}
+                                        onChange={this.simulationNameChanged}/>
             </div>
-            <div>End date: <input type="date" name="endDate"
-                                  value={App.datepickerFormat(this.state.endDate)}
-                                  onChange={this.endDateChanged}/>
+            <div className="EditPanel-variable">
+                Start date: <input type="date" name="startDate"
+                                   value={App.datepickerFormat(this.state.startDate)}
+                                   onChange={this.startDateChanged}/>
             </div>
-            <div>End hour: <input type="number" name="endHour"
-                                  min="0"
-                                  max="24"
-                                  value={this.state.endHour}
-                                  onChange={this.endHourChanged}/>
+            <div className="EditPanel-variable">
+                Start hour: <input type="number" name="startHour"
+                                   min="0"
+                                   max="24"
+                                   value={this.state.startHour}
+                                   onChange={this.startHourChanged}/>
             </div>
-            <div>Withdrawals per hour: <input type="number" name="eventsPerHour"
-                                              min="1"
-                                              max="1000"
-                                              value={this.state.eventsPerHour}
-                                              onChange={this.eventsPerHourChanged}/>
+            <div className="EditPanel-variable">
+                End date: <input type="date" name="endDate"
+                                 value={App.datepickerFormat(this.state.endDate)}
+                                 onChange={this.endDateChanged}/>
             </div>
-            <div>Simulation name: <input type="string" name="simulationName"
-                                         value={this.state.simulationName}
-                                         onChange={this.simulationNameChanged}/>
+            <div className="EditPanel-variable">
+                End hour: <input type="number" name="endHour"
+                                 min="0"
+                                 max="24"
+                                 value={this.state.endHour}
+                                 onChange={this.endHourChanged}/>
             </div>
-            <div>
+            <div className="EditPanel-sectionLabel">
+                Default ATM settings
+            </div>
+
+            <div>Refill amount:
+                <input type="number" name="refillAmount"
+                       value={this.state.default.refillAmount}
+                       onChange={this.defaultRefillAmountChanged}
+                />
+            </div>
+
+            <div>Money refill interval in hours:
+                <input type="number" name="scheduledRefillInterval"
+                       value={this.state.default.scheduledRefillInterval}
+                       onChange={this.defaultScheduledRefillIntervalChanged}
+                />
+            </div>
+            <div>Load:
+                <select name="load"
+                        value={this.state.default.load}
+                        onChange={this.defaultLoadChanged}
+                >
+                    <LoadOptions/>
+                </select>
+            </div>
+
+            <div className="EditPanel-sectionLabel">
+                Withdrawal settings
+            </div>
+            <div className="EditPanel-variable">
+                Withdrawals per hour:
+                <input type="number" name="eventsPerHour"
+                       min="1"
+                       max="10000"
+                       value={this.state.eventsPerHour}
+                       onChange={this.eventsPerHourChanged}/>
+            </div>
+            <div className="EditPanel-variable">
+                Distribution of withdrawal amount:
+                <select name="withdrawalDistribution"
+                        value={this.state.withdrawal.distribution}
+                        onChange={this.withdrawalDistributionChanged}>
+                    {withdrawalDistributionTypes.map(type =>
+                        <option key={type} value={type}>{type}</option>)}
+                </select>
+            </div>
+            {this.state.withdrawal.distribution === withdrawalDistributionTypes[1]
+                ? this.uniformDistributionParameters() :
+                this.normalDistributionParameters()}
+
+            <div className="EditPanel-sectionLabel"/>
+            <div className="EditPanel-variable">
                 <button onClick={this.startSimulation}>Start simulation</button>
             </div>
         </div>;
+    }
+
+    private normalDistributionParameters() {
+        return <>
+            <div className="EditPanel-variable">
+                Mean withdrawal amount:
+                <input type="number" name="withdrawalMean"
+                       value={this.state.withdrawal.mean}
+                       onChange={this.withdrawalMeanChanged}
+                />
+            </div>
+            <div className="EditPanel-variable">
+                Standard deviation of withdrawal amount:
+                <input type="number" name="withdrawalStddev"
+                       value={this.state.withdrawal.stddev}
+                       onChange={this.withdrawalStddevChanged}
+                />
+            </div>
+        </>;
+    }
+
+    private uniformDistributionParameters() {
+        return <>
+            <div className="EditPanel-variable">
+                Minimum withdrawal amount:
+                <input type="number" name="withdrawalMin"
+                       value={this.state.withdrawal.min}
+                       onChange={this.withdrawalMinChanged}
+                />
+            </div>
+            <div className="EditPanel-variable">
+                Maximum withdrawal amount:
+                <input type="number" name="withdrawalMax"
+                       value={this.state.withdrawal.max}
+                       onChange={this.withdrawalMaxChanged}
+                />
+            </div>
+        </>;
     }
 
     private loadConfig(simulationPath: string = "/default") {
@@ -289,7 +500,7 @@ class App extends React.Component<any, State> {
                     const endHour = endDate.getHours();
                     return {
                         ...s, atms, config: r.data, endDate, endHour, simulationTime: startDate,
-                        startDate, startHour
+                        startDate, startHour, withdrawal: r.data.withdrawal
                     }
                 });
             });
@@ -371,6 +582,61 @@ class App extends React.Component<any, State> {
         this.setState({...this.state, eventsPerHour});
     };
 
+    private defaultRefillAmountChanged = (e) => {
+        console.log(`Default refill amount changed to ${e.target.value}`);
+        const refillAmount = Number.parseInt(e.target.value, undefined);
+        const d = {...this.state.default, refillAmount};
+        this.setState({...this.state, default: d});
+    };
+
+    private defaultScheduledRefillIntervalChanged = (e) => {
+        console.log(`Default scheduled refill interval changed to ${e.target.value}`);
+        const scheduledRefillInterval = Number.parseInt(e.target.value, undefined);
+        const d = {...this.state.default, scheduledRefillInterval};
+        this.setState({...this.state, default: d});
+    };
+
+    private defaultLoadChanged = (e) => {
+        console.log(`Default load changed to ${e.target.value}`);
+        const load = Number.parseInt(e.target.value, undefined);
+        const d = {...this.state.default, load};
+        this.setState({...this.state, default: d});
+    };
+
+    private withdrawalDistributionChanged = (e) => {
+        console.log(`Withdrawal distribution changed to ${e.target.value}`);
+        const withdrawal = {...this.state.withdrawal, distribution: e.target.value};
+        this.setState({...this.state, withdrawal});
+    };
+
+    private withdrawalMinChanged = (e) => {
+        console.log(`Withdrawal min changed to ${e.target.value}`);
+        const min = Number.parseInt(e.target.value, undefined);
+        const withdrawal = {...this.state.withdrawal, min};
+        this.setState({...this.state, withdrawal});
+    };
+
+    private withdrawalMaxChanged = (e) => {
+        console.log(`Withdrawal max changed to ${e.target.value}`);
+        const max = Number.parseInt(e.target.value, undefined);
+        const withdrawal = {...this.state.withdrawal, max};
+        this.setState({...this.state, withdrawal});
+    };
+
+    private withdrawalMeanChanged = (e) => {
+        console.log(`Withdrawal mean changed to ${e.target.value}`);
+        const mean = Number.parseInt(e.target.value, undefined);
+        const withdrawal = {...this.state.withdrawal, mean};
+        this.setState({...this.state, withdrawal});
+    };
+
+    private withdrawalStddevChanged = (e) => {
+        console.log(`Withdrawal stddev changed to ${e.target.value}`);
+        const stddev = Number.parseInt(e.target.value, undefined);
+        const withdrawal = {...this.state.withdrawal, stddev};
+        this.setState({...this.state, withdrawal});
+    };
+
     private simulationNameChanged = (e) => {
         console.log(`Simulation name changed to ${e.target.value}`);
         this.setState({...this.state, simulationName: e.target.value});
@@ -410,10 +676,10 @@ class App extends React.Component<any, State> {
         const selectedDate = this.state.selectedDate;
 
         return this.state.atms.map((a) =>
-            <Marker key={a.name} position={a.location} icon={icon}>
+            <Marker key={a.name} position={a.location} icon={App.getIcon(a)}>
                 <Popup>
                     <AtmPopup atm={a}
-                              default={this.state.config.default}
+                              default={this.state.default}
                               editing={this.state.editing}
                               selectedDate={App.datepickerFormat(selectedDate)}
                               selectedHour={this.state.selectedHour}

@@ -10,7 +10,6 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.stream.scaladsl.{FileIO, Source, SourceQueueWithComplete}
 import akka.stream.{Materializer, OverflowStrategy}
 import akka.util.{ByteString, Timeout}
-import org.json4s
 import org.json4s._
 import org.json4s.jackson.Serialization.write
 
@@ -20,12 +19,12 @@ import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Time
 object OutputActor {
 
   def props(sideEffects: ActorRef, fileName: String)(implicit materializer: Materializer): Props = {
-    implicit val formats: AnyRef with Formats = DefaultFormats + InstantSerializer
+    implicit val formats: AnyRef with Formats = DefaultFormats + InstantSerializer + AtmStateSerializer
 
     val output = FileIO.toPath(Paths.get(s"$fileName.log"), Set(WRITE, TRUNCATE_EXISTING, CREATE))
 
     val queue = Source.queue[Event](10000000, OverflowStrategy.backpressure)
-      .map(e => write(e))
+      .map(write(_))
       .map(json => ByteString(json + System.lineSeparator()))
       .to(output)
       .run()
@@ -44,7 +43,7 @@ class OutputActor(queue: SourceQueueWithComplete[Event], sideEffects: ActorRef) 
       try {
         Await.result(sideEffects ? e, 10 seconds)
       } catch {
-        case ex: TimeoutException => log.error(s"Timed out on message: ${e}")
+        case _: TimeoutException => log.error(s"Timed out on message: $e")
       }
 
       Await.result(queue.offer(e), 10 seconds)

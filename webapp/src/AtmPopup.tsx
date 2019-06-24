@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import {LoadOptions} from "./LoadOptions";
 
 export default function AtmPopup(props) {
     return <div>
@@ -12,17 +12,27 @@ export default function AtmPopup(props) {
                                    onChange={props.refillAmountChanged}
                                    disabled={!props.editing}/>
         </div>
-        <div>Refill delay in hours: <input type="number" name="refillDelayHours"
-                                           value={props.atm.refillDelayHours}
-                                           placeholder={props.default.refillDelayHours}
-                                           onChange={props.refillDelayHoursChanged}
-                                           disabled={!props.editing}/>
+
+        <div>Money refill interval in hours: <input type="number" name="scheduledRefillInterval"
+                                                    value={props.scheduledRefillInterval}
+                                                    placeholder={props.default.scheduledRefillInterval}
+                                                    onChange={props.scheduledRefillIntervalChanged}
+                                                    disabled={!props.editing}/>
         </div>
-        <div>ATM default load: <input type="number" name="atmDefaultLoad"
-                                      value={props.atm.atmDefaultLoad}
-                                      placeholder={props.default.load}
-                                      onChange={props.atmDefaultLoadChanged}
-                                      disabled={!props.editing}/>
+        {/*<div>Refill delay in hours: <input type="number" name="refillDelayHours"*/}
+        {/*                                   value={props.atm.refillDelayHours}*/}
+        {/*                                   placeholder={props.default.refillDelayHours}*/}
+        {/*                                   onChange={props.refillDelayHoursChanged}*/}
+        {/*                                   disabled={!props.editing}/>*/}
+        {/*</div>*/}
+        <div>ATM default load:
+            <select name="atmDefaultLoad"
+                    value={props.atm.atmDefaultLoad}
+                    placeholder={props.default.load}
+                    onChange={props.atmDefaultLoadChanged}
+                    disabled={!props.editing}>
+                <LoadOptions/>
+            </select>
         </div>
         <div>Date: <input type="date" name="selectedDate"
                           value={props.selectedDate}
@@ -36,16 +46,14 @@ export default function AtmPopup(props) {
                           onChange={props.selectedHourChanged}
                           disabled={!props.editing}/>
         </div>
-        <div>Hourly load: <input type="number" name="hourlyLoad"
-                                 value={props.hourlyLoad}
-                                 placeholder={props.atm.atmDefaultLoad ? props.atm.atmDefaultLoad : props.default.load}
-                                 onChange={props.hourlyLoadChanged}/>
-        </div>
-        <div>Scheduled refill interval in hours: <input type="number" name="scheduledRefillInterval"
-                                                        value={props.scheduledRefillInterval}
-                                                        placeholder={props.default.scheduledRefillInterval}
-                                                        onChange={props.scheduledRefillIntervalChanged}
-                                                        disabled={!props.editing}/>
+        <div>Hourly load:
+            <select
+                name="hourlyLoad"
+                value={props.hourlyLoad}
+                placeholder={props.atm.atmDefaultLoad ? props.atm.atmDefaultLoad : props.default.load}
+                onChange={props.hourlyLoadChanged}>
+                <LoadOptions/>
+            </select>
         </div>
     </div>
 }
