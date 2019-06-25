@@ -64,6 +64,7 @@ interface State {
     endHour: number
     playSpeed: number
     paused: boolean
+    randomSeed: number
     editing: boolean
     simulationName: string
     simulationTime: Date
@@ -172,6 +173,7 @@ class App extends React.Component<any, State> {
         interval: 1000,
         paused: false,
         playSpeed: 1,
+        randomSeed: 1,
         selectedDate: this.now,
         selectedHour: this.now.getHours(),
         simulationName: "simulation",
@@ -390,6 +392,12 @@ class App extends React.Component<any, State> {
                                  value={this.state.endHour}
                                  onChange={this.endHourChanged}/>
             </div>
+
+            <div className="EditPanel-variable">
+                Random seed: <input type="number" name="endHour"
+                                 value={this.state.randomSeed}
+                                 onChange={this.randomSeedChanged}/>
+            </div>
             <div className="EditPanel-sectionLabel">
                 Default ATM settings
             </div>
@@ -492,7 +500,7 @@ class App extends React.Component<any, State> {
             .then(r => {
                 this.setState(s => {
                     const atms = r.data.atms.map(a => {
-                        return {...a, currentAmount: a.refillAmount}
+                        return {...a, currentAmount: a.refillAmount, state: "Operational"}
                     });
                     const startDate = new Date(r.data.startDate);
                     const startHour = startDate.getHours();
@@ -574,6 +582,12 @@ class App extends React.Component<any, State> {
         console.log(`End hour changed to ${e.target.value}`);
         const endHour = Number.parseInt(e.target.value, undefined);
         this.setState({...this.state, endHour});
+    };
+
+    private randomSeedChanged = (e) => {
+        console.log(`Random seed changed to ${e.target.value}`);
+        const randomSeed = Number.parseInt(e.target.value, undefined);
+        this.setState({...this.state, randomSeed});
     };
 
     private eventsPerHourChanged = (e) => {
@@ -715,6 +729,7 @@ class App extends React.Component<any, State> {
                 eventsPerHour: this.state.eventsPerHour,
                 startDate,
                 withdrawal: this.state.config.withdrawal,
+                randomSeed: this.state.randomSeed
             })
             .then(response => console.log(`Simulation response ${JSON.stringify(response)}`))
             .catch(errorResponse => `Simulation error ${errorResponse}`)

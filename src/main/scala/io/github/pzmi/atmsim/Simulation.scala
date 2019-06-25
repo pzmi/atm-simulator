@@ -1,11 +1,11 @@
 package io.github.pzmi.atmsim
 
-import java.time.{Instant, LocalDateTime}
+import java.time.Instant
+import java.util.UUID
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import com.typesafe.scalalogging.StrictLogging
-import io.github.pzmi.atmsim.Application.system
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
@@ -20,29 +20,29 @@ object Simulation extends StrictLogging {
             endDate: Instant,
            fileName: String)(implicit materializer: Materializer,
                                       executionContext: ExecutionContext): Unit = {
-
+    implicit val actorSystem: ActorSystem = ActorSystem(s"$fileName-${UUID.randomUUID().toString}")
     val (outputActor, sideEffects, atms) = prepareActors(config, fileName, startDate)
-    val generatorActor = system.actorOf(
+    val generatorActor = actorSystem.actorOf(
       GeneratorActor.props(atms, eventsPerHour, startDate, endDate, outputActor, sideEffects, config, randomSeed), "generator")
     generatorActor ! StartGeneration()
 
     sys.addShutdownHook({
       logger.info("Shutting down")
       outputActor ! Complete
-      Await.result(system.terminate(), 10 seconds)
+      Await.result(actorSystem.terminate(), 10 seconds)
     })
   }
 
-  private def prepareActors(config: Config, fileName: String, startDate: Instant)(implicit materializer: Materializer) = {
-    val sideEffects = system.actorOf(SideEffectsActor.props(config, startDate), "side-effects")
-    val outputActor = system.actorOf(OutputActor.props(sideEffects, fileName), "output")
+  private def prepareActors(config: Config, fileName: String, startDate: Instant)(implicit materializer: Materializer, actorSystem: ActorSystem) = {
+    val sideEffects = actorSystem.actorOf(SideEffectsActor.props(config, startDate), "side-effects")
+    val outputActor = actorSystem.actorOf(OutputActor.props(sideEffects, fileName), "output")
     val atmActors: Array[ActorRef] = prepareAtms(config, outputActor)
     (outputActor, sideEffects, atmActors)
   }
 
-  private def prepareAtms(config: Config, outputActor: ActorRef) = {
+  private def prepareAtms(config: Config, outputActor: ActorRef)(implicit actorSystem: ActorSystem) = {
     config.atms
-      .map(atm => system.actorOf(
+      .map(atm => actorSystem.actorOf(
         AtmActor.props(outputActor,
           atm.refillAmount.getOrElse(config.default.refillAmount)),
         atm.name))

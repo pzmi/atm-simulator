@@ -30,7 +30,7 @@ object GeneratorActor {
             outputActor: ActorRef,
             sideEffectsActor: ActorRef,
             config: Config,
-            randomSeed: Int)
+            randomSeed: Long)
            (implicit materializer: Materializer, executionContext: ExecutionContext): Props = {
     val sourceStream = eventsGeneratorStreamWith(atms, startDate, endDate)
 

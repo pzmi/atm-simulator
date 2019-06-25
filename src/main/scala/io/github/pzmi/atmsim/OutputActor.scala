@@ -58,6 +58,7 @@ class OutputActor(queue: SourceQueueWithComplete[Event], sideEffects: ActorRef) 
         processingTime,
         TimeUnit.NANOSECONDS.toSeconds(processingTime))
       log.info("Done")
+      context.system.terminate()
   }
 
 }

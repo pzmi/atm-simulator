@@ -83,7 +83,7 @@ class Server(implicit private val materializer: Materializer,
       )) {
         entity(as[Config]) { c =>
           logger.info(s"Received config: $c")
-          Simulation.start(1L, c, c.eventsPerHour, c.startDate, c.endDate, simulationName)
+          Simulation.start(c.randomSeed, c, c.eventsPerHour, c.startDate, c.endDate, simulationName)
 
           val receivedConfigString = Serialization.write[Config](c)
           val file = new File(s"$simulationName-config.json")

@@ -2,6 +2,7 @@
   "startDate": 1558470392042,
   "endDate": 1559068059000,
   "eventsPerHour": 100,
+  "randomSeed": 1,
   "default": {
     "refillAmount": 100000,
     "refillDelayHours": 5,
