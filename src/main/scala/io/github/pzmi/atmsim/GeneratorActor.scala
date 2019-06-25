@@ -1,7 +1,8 @@
 package io.github.pzmi.atmsim
 
 import java.time.{Instant, ZoneOffset}
-import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
+import java.util.Random
+import java.util.concurrent.TimeUnit
 
 import akka.NotUsed
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, Props}
@@ -28,12 +29,14 @@ object GeneratorActor {
             endDate: Instant,
             outputActor: ActorRef,
             sideEffectsActor: ActorRef,
-            config: Config)
+            config: Config,
+            randomSeed: Int)
            (implicit materializer: Materializer, executionContext: ExecutionContext): Props = {
     val sourceStream = eventsGeneratorStreamWith(atms, startDate, endDate)
 
 
-    Props(new GeneratorActor(atms, sourceStream, outputActor, sideEffectsActor, eventsPerHour, config))
+    Props(new GeneratorActor(atms, sourceStream, outputActor, sideEffectsActor, eventsPerHour, config,
+      new Random(randomSeed)))
   }
 
   private def eventsGeneratorStreamWith(atms: Array[ActorRef],
@@ -53,9 +56,11 @@ class GeneratorActor(private val atms: Array[ActorRef],
                      private val outputActor: ActorRef,
                      private val sideEffectsActor: ActorRef,
                      private val eventsPerHour: Int,
-                     private val config: Config)
+                     private val config: Config,
+                     private val randomGenerator: Random)
                     (implicit private val materializer: Materializer,
                      implicit private val executionContext: ExecutionContext) extends Actor with ActorLogging {
+
   override def receive: Receive = {
     case _: StartGeneration => start()
     case _: Complete => log.info("Completed generation")
@@ -77,12 +82,12 @@ class GeneratorActor(private val atms: Array[ActorRef],
       val timeFuture: Source[Future[Any], NotUsed] = Source.single(sideEffectsActor ? TimePassed(i))
       val sendFuture: Source[Future[Any], NotUsed] = Source(0 until eventsPerHour).map(_ => i).map {
         timestamp =>
-          val random = ThreadLocalRandom.current().nextInt(distribution.length)
+          val random = randomGenerator.nextInt(distribution.length)
           val actorName = distribution(random)
           val selection = context.actorSelection(s"/user/$actorName")
           val wc = config.withdrawal
           val amount = wc.distribution match {
-            case Normal => ThreadLocalRandom.current().nextInt(wc.min, wc.max)
+            case Normal => randomGenerator.nextInt(wc.max - wc.min) + wc.min
             case Gaussian => positiveGaussianRandom(wc.mean, wc.stddev).intValue()
           }
 
@@ -100,7 +105,7 @@ class GeneratorActor(private val atms: Array[ActorRef],
   }
 
   private def positiveGaussianRandom(mean: Int, stddev: Int) = {
-    Math.max(ThreadLocalRandom.current().nextGaussian() * stddev + mean, 0)
+    Math.max(randomGenerator.nextGaussian() * stddev + mean, 0)
   }
 
   private def sendMessage(timestamp: Instant, amount: Int, destination: ActorSelection) = {

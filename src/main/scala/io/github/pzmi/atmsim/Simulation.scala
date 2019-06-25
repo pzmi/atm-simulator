@@ -10,7 +10,6 @@ import io.github.pzmi.atmsim.Application.system
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
 import scala.language.postfixOps
-import scala.util.Random
 
 object Simulation extends StrictLogging {
 
@@ -21,11 +20,10 @@ object Simulation extends StrictLogging {
             endDate: Instant,
            fileName: String)(implicit materializer: Materializer,
                                       executionContext: ExecutionContext): Unit = {
-    Random.setSeed(randomSeed)
 
     val (outputActor, sideEffects, atms) = prepareActors(config, fileName, startDate)
     val generatorActor = system.actorOf(
-      GeneratorActor.props(atms, eventsPerHour, startDate, endDate, outputActor, sideEffects, config), "generator")
+      GeneratorActor.props(atms, eventsPerHour, startDate, endDate, outputActor, sideEffects, config, randomSeed), "generator")
     generatorActor ! StartGeneration()
 
     sys.addShutdownHook({
