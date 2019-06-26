@@ -31,45 +31,55 @@ class SideEffectsActor(private val atmToConfig: Map[String, SideEffectConfig],
   implicit private val queueOrdering: Ordering[SideEffectEvent] = Ordering.by(e => e.when)
   private val eventsQueue = mutable.PriorityQueue()
 
-
   override def preStart(): Unit = {
-    atmToConfig.foreach { case (atm, config) =>
+    atmToConfig.foreach { case (atm, _) =>
       self ! PreparedToStart(startTime, atm)
     }
   }
-
 
   override def postRestart(reason: Throwable): Unit = ()
 
   override def receive: Receive = {
     case e: PreparedToStart =>
-      val atmConfig = atmToConfig(e.atm)
-      val sideEffectScheduleTime = startTime.plusSeconds(TimeUnit.HOURS.toSeconds(atmConfig.scheduledRefillInterval))
+      val scheduledRefillDelay: Long = scheduledRefillDelayFrom(e)
+      val sideEffectScheduleTime = startTime.plusSeconds(scheduledRefillDelay)
       eventsQueue.enqueue(SideEffectEvent(sideEffectScheduleTime, e))
 
-    case e: OutOfMoney =>
-      resp { _ =>
-        eventsQueue.enqueue(
-          SideEffectEvent(e.time.plusSeconds(TimeUnit.HOURS.toSeconds(atmToConfig(e.atm).refillDelayHours)), e))
-      }
+//    case e: OutOfMoney =>
+//      resp { _ =>
+//        eventsQueue.enqueue(
+//          SideEffectEvent(e.time.plusSeconds(TimeUnit.HOURS.toSeconds(atmToConfig(e.atm).refillDelayHours)), e))
+//      }
 
-    case TimePassed(t) => resp { _ =>
+    case TimePassed(timeThatPassed) => resp { _ =>
+      log.debug("Time passed")
       drainDueEvents()
 
       @tailrec
       def drainDueEvents() {
         if (eventsQueue.nonEmpty) {
-          val e = eventsQueue.dequeue()
-          if (t.isAfter(e.when)) {
-            context.actorSelection(s"/user/${e.event.atm}") ! Refill(t, amount = atmToConfig(e.event.atm).refillAmount)
+          val eventFromQueue = eventsQueue.dequeue()
+          if (!timeThatPassed.isBefore(eventFromQueue.when)) {
+            log.info("Draining")
+            context.actorSelection(s"/user/${eventFromQueue.event.atm}") !
+              Refill(timeThatPassed, amount = atmToConfig(eventFromQueue.event.atm).refillAmount)
+            val nextRefill = eventFromQueue.when.plusSeconds(scheduledRefillDelayFrom(eventFromQueue.event))
+            eventsQueue.enqueue(eventFromQueue.copy(when = nextRefill))
             drainDueEvents()
           } else {
-            eventsQueue.enqueue(e)
+            log.debug(s"Enqueue $eventFromQueue on $timeThatPassed")
+            eventsQueue.enqueue(eventFromQueue)
           }
         }
       }
     }
     case _: Event => resp { _ => }
+  }
+
+  private def scheduledRefillDelayFrom(e: Event) = {
+    val atmConfig = atmToConfig(e.atm)
+    val scheduledRefillDelay = TimeUnit.HOURS.toSeconds(atmConfig.scheduledRefillInterval)
+    scheduledRefillDelay
   }
 
   private def resp[T](toResponseAfter: Any => T): T = {
