@@ -9,15 +9,18 @@ const loadTypes = {
         label: "Medium",
         value: 3
     },
-    veryLow: {
-        label: "Very low",
-        value: 1
-    },
-    // @ts-ignore
     low: {
         label: "Low",
         value: 2
     },
+    veryLow: {
+        label: "Very low",
+        value: 1
+    },
+    off: {
+        label: "Off",
+        value: 0
+    }
 };
 
 function LoadOptions(props) {
