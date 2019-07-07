@@ -136,9 +136,10 @@ class App extends React.Component<any, State> {
         return dateFormat(selectedDate, "yyyy-mm-dd");
     }
 
-    private static getIcon(atm: Atm) {
+    private static getIcon(atm: Atm, defaultRefillAmount) {
         const isAlert = App.isAlert(atm);
-        const fillPercentage = atm.currentAmount / atm.refillAmount * 100;
+        const refillAmount = atm.refillAmount ? atm.refillAmount : defaultRefillAmount;
+        const fillPercentage = atm.currentAmount / refillAmount * 100;
         if (fillPercentage < 10) {
             return isAlert ? atmLowAlert : atmLow;
         } else if (fillPercentage < 50) {
@@ -690,13 +691,14 @@ class App extends React.Component<any, State> {
         const selectedDate = this.state.selectedDate;
 
         return this.state.atms.map((a) =>
-            <Marker key={a.name} position={a.location} icon={App.getIcon(a)}>
+            <Marker key={a.name} position={a.location} icon={App.getIcon(a, this.state.default.refillAmount)}>
                 <Popup>
                     <AtmPopup atm={a}
                               default={this.state.default}
                               editing={this.state.editing}
                               selectedDate={App.datepickerFormat(selectedDate)}
                               selectedHour={this.state.selectedHour}
+                              timestamp={this.getTimestamp()}
                               refillAmountChanged={this.refillAmountChanged(a)}
                               refillDelayHoursChanged={this.refillDelayHoursChanged(a)}
                               atmDefaultLoadChanged={this.atmDefaultLoadChanged(a)}
@@ -724,11 +726,11 @@ class App extends React.Component<any, State> {
         axios.post(`http://${server}/simulation/${this.state.simulationName}`,
             {
                 atms: this.state.atms,
-                default: this.state.config.default,
+                default: this.state.default,
                 endDate,
                 eventsPerHour: this.state.eventsPerHour,
                 startDate,
-                withdrawal: this.state.config.withdrawal,
+                withdrawal: this.state.withdrawal,
                 randomSeed: this.state.randomSeed
             })
             .then(response => console.log(`Simulation response ${JSON.stringify(response)}`))

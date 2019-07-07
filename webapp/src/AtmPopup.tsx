@@ -2,6 +2,12 @@ import * as React from 'react';
 import {LoadOptions} from "./LoadOptions";
 
 export default function AtmPopup(props) {
+    const atmDefaultLoad = props.atm.atmDefaultLoad ? props.atm.atmDefaultLoad : props.default.load;
+    const hourKey = props.timestamp.toString();
+    const hourly = props.atm.hourly[hourKey];
+    const hourlyLoadOption = hourly ? hourly.load : undefined;
+    const hourlyLoad = hourlyLoadOption ? hourlyLoadOption : atmDefaultLoad;
+    console.log(`hourly load is: ${hourlyLoad}`);
     return <div>
         <div>Name: {props.atm.name}</div>
         <div>Location: {props.atm.location[0]}, {props.atm.location[1]}</div>
@@ -27,8 +33,7 @@ export default function AtmPopup(props) {
         {/*</div>*/}
         <div>ATM default load:
             <select name="atmDefaultLoad"
-                    value={props.atm.atmDefaultLoad}
-                    placeholder={props.default.load}
+                    value={atmDefaultLoad}
                     onChange={props.atmDefaultLoadChanged}
                     disabled={!props.editing}>
                 <LoadOptions/>
@@ -49,8 +54,7 @@ export default function AtmPopup(props) {
         <div>Hourly load:
             <select
                 name="hourlyLoad"
-                value={props.hourlyLoad}
-                placeholder={props.atm.atmDefaultLoad ? props.atm.atmDefaultLoad : props.default.load}
+                value={hourlyLoad}
                 onChange={props.hourlyLoadChanged}>
                 <LoadOptions/>
             </select>

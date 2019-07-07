@@ -30,6 +30,7 @@ class AtmActor(output: ActorRef, startingBalance: Int) extends Actor with ActorL
   private def operational(currentBalance: Int): Receive = {
     case w: Withdrawal => handleOperational(currentBalance, w)
     case r: Refill =>
+      log.debug(s"Received refill $r")
       handleOperational(currentBalance, r)
     case e => throw new IllegalArgumentException(s"Received invalid event $e from ${sender()}")
   }

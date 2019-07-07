@@ -29,7 +29,7 @@ case class SideEffectConfig(refillAmount: Int,
 class SideEffectsActor(private val atmToConfig: Map[String, SideEffectConfig],
                        private val startTime: Instant) extends Actor with ActorLogging {
   implicit private val queueOrdering: Ordering[SideEffectEvent] = Ordering.by(e => e.when)
-  private val eventsQueue = mutable.PriorityQueue()
+  private val eventsQueue = mutable.PriorityQueue()(queueOrdering.reverse)
 
   override def preStart(): Unit = {
     atmToConfig.foreach { case (atm, _) =>
@@ -60,9 +60,10 @@ class SideEffectsActor(private val atmToConfig: Map[String, SideEffectConfig],
         if (eventsQueue.nonEmpty) {
           val eventFromQueue = eventsQueue.dequeue()
           if (!timeThatPassed.isBefore(eventFromQueue.when)) {
-            log.info("Draining")
-            context.actorSelection(s"/user/${eventFromQueue.event.atm}") !
-              Refill(timeThatPassed, amount = atmToConfig(eventFromQueue.event.atm).refillAmount)
+            log.debug("Draining")
+            val refill = Refill(timeThatPassed, amount = atmToConfig(eventFromQueue.event.atm).refillAmount)
+            log.debug(s"Sending refill: ${refill} to atm: ${eventFromQueue.event.atm}")
+            context.actorSelection(s"/user/${eventFromQueue.event.atm}") ! refill
             val nextRefill = eventFromQueue.when.plusSeconds(scheduledRefillDelayFrom(eventFromQueue.event))
             eventsQueue.enqueue(eventFromQueue.copy(when = nextRefill))
             drainDueEvents()
