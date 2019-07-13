@@ -341,12 +341,17 @@ class App extends React.Component<any, State> {
                 </div>
                 <div>
                     Simulation speed
-                    <button onClick={this.decelerate}>-</button>
-                    {this.state.paused ?
-                        <button onClick={this.resume}>▶</button>
-                        : <button onClick={this.pause}>||</button>}
-                    <button onClick={this.accelerate}>+</button>
+                    <div>
+                        <button onClick={this.decelerate}>-</button>
+                        {this.state.paused ?
+                            <button onClick={this.resume}>▶</button>
+                            : <button onClick={this.pause}>||</button>}
+                        <button onClick={this.accelerate}>+</button>
+                    </div>
                 </div>
+            </div>
+            <div>
+                <a href={`${window.location.pathname}/log`}>Export simulation log</a>
             </div>
             <div className="Events-banner">
                 Events
@@ -396,8 +401,8 @@ class App extends React.Component<any, State> {
 
             <div className="EditPanel-variable">
                 Random seed: <input type="number" name="endHour"
-                                 value={this.state.randomSeed}
-                                 onChange={this.randomSeedChanged}/>
+                                    value={this.state.randomSeed}
+                                    onChange={this.randomSeedChanged}/>
             </div>
             <div className="EditPanel-sectionLabel">
                 Default ATM settings

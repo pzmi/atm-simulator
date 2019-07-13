@@ -73,6 +73,19 @@ class Server(implicit private val materializer: Materializer,
     }
   }
 
+  val simulationLogRoute = path(Segment / "log") { simulationName =>
+    get {
+      respondWithHeaders(List(
+        `Access-Control-Allow-Origin`.*,
+        `Access-Control-Allow-Credentials`(true),
+        `Access-Control-Allow-Headers`("Authorization",
+          "Content-Type", "X-Requested-With"),
+      )) {
+        getFromFile(s"$simulationName.log")
+      }
+    }
+  }
+
   val simulationRoute = path("simulation" / Segment) { simulationName =>
     post {
       respondWithHeaders(List(
@@ -126,7 +139,7 @@ class Server(implicit private val materializer: Materializer,
     }
   }
 
-  val route: Route = websocket ~ simulationRoute ~ configRoute ~ staticRoute ~ appRoute
+  val route: Route = websocket ~ simulationLogRoute ~ simulationRoute ~ configRoute ~ staticRoute ~ appRoute
 
 }
 
