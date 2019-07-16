@@ -22,15 +22,15 @@ case class HourlyProperties(load: Int)
 case class WithdrawalProperties(min: Int, max: Int, stddev: Int, mean: Int, distribution: Distribution)
 
 sealed abstract class Distribution
-case object Normal extends Distribution
+case object Uniform extends Distribution
 case object Gaussian extends Distribution
 
 object DistributionSerializer extends CustomSerializer[Distribution](_ => ( {
-  case JString("Normal") => Normal
+  case JString("Uniform") => Uniform
   case JString("Gaussian") => Gaussian
   case _ => throw new IllegalArgumentException("No such distribution supported")
 
 }, {
-  case Normal => JString("Normal")
+  case Uniform => JString("Uniform")
   case Gaussian => JString("Gaussian")
 }))

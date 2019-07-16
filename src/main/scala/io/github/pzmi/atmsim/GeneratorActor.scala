@@ -87,7 +87,7 @@ class GeneratorActor(private val atms: Array[ActorRef],
           val selection = context.actorSelection(s"/user/$actorName")
           val wc = config.withdrawal
           val amount = wc.distribution match {
-            case Normal => randomGenerator.nextInt(wc.max - wc.min) + wc.min
+            case Uniform => randomGenerator.nextInt(wc.max - wc.min) + wc.min
             case Gaussian => positiveGaussianRandom(wc.mean, wc.stddev).intValue()
           }
 
