@@ -32,7 +32,7 @@ class AtmActor(output: ActorRef, startingBalance: Int) extends Actor with ActorL
     case r: Refill =>
       log.debug(s"Received refill $r")
       handleOperational(currentBalance, r)
-    case e => throw new IllegalArgumentException(s"Received invalid event $e from ${sender()}")
+    case e => log.debug(s"Received invalid event $e from ${sender()}")
   }
 
   private def handleOperational(currentBalance: Int, event: Event): Unit = {
@@ -65,7 +65,9 @@ class AtmActor(output: ActorRef, startingBalance: Int) extends Actor with ActorL
 
     def sendToOutputAndAck(e: Event): Unit = {
       implicit val timeout: Timeout = Timeout(30 seconds)
-      Await.result(output ? e, 30 seconds)
+//      Await.result(output ? e, 30 seconds)
+//      sender() ! Done
+      output ! e
       sender() ! Done
     }
 

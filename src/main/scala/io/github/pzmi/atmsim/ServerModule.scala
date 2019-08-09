@@ -33,7 +33,10 @@ class Server(implicit private val materializer: Materializer,
   implicit val formats: AnyRef with Formats = DefaultFormats + InstantSerializer + DistributionSerializer
   implicit val serialization: Serialization.type = jackson.Serialization
 
-  private val configString: String = scala.io.Source.fromResource("config.json").getLines.mkString("\n")
+  private val configString: String = scala.io.Source
+    .fromResource("config.json")
+    .getLines
+    .mkString("\n")
   val defaultConfig: Config = Serialization.read[Config](configString)
 
   implicit def rejectionHandler: RejectionHandler =
@@ -96,6 +99,7 @@ class Server(implicit private val materializer: Materializer,
       )) {
         entity(as[Config]) { c =>
           logger.info(s"Received config: $c")
+          logger.info(s"Number of atms: ${c.atms.length}")
           Simulation.start(c.randomSeed, c, c.eventsPerHour, c.startDate, c.endDate, simulationName)
 
           val receivedConfigString = Serialization.write[Config](c)

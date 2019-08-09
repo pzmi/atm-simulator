@@ -1,0 +1,20 @@
+{
+  "startDate": 1558470392042,
+  "endDate": 1559334392042,
+  "eventsPerHour": 100,
+  "randomSeed": 1,
+  "default": {
+    "refillAmount": 10000,
+    "refillDelayHours": 5,
+    "load": 2,
+    "scheduledRefillInterval": 72
+  },
+  "withdrawal": {
+    "min": 10,
+    "max": 10000,
+    "mean": 100,
+    "stddev": 1000,
+    "distribution": "Gaussian"
+  },
+  "atms": [{"name": 21249606, "location": [50.0622357, 19.9359087]}]
+}

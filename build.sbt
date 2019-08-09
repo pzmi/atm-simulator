@@ -20,9 +20,10 @@ libraryDependencies ++= Seq(
   "org.json4s" %% "json4s-ext" % "3.6.5",
   "de.heikoseeberger" %% "akka-http-json4s" % "1.25.2",
 
+  "com.softwaremill.macwire" %% "macros" % "2.3.1" % "provided",
+  "com.softwaremill.macwire" %% "macrosakka" % "2.3.1" % "provided",
+
   "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % Test,
   "org.scalatest" %% "scalatest" % "3.0.5" % Test,
 
-  "com.softwaremill.macwire" %% "macros" % "2.3.1" % "provided",
-  "com.softwaremill.macwire" %% "macrosakka" % "2.3.1" % "provided"
 )

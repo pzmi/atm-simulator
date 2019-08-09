@@ -99,7 +99,8 @@ class GeneratorActor(private val atms: Array[ActorRef],
       }
 
       timeFuture.concat(sendFuture)
-    }).mapAsync(Runtime.getRuntime.availableProcessors())(identity)
+//    }).mapAsync(Runtime.getRuntime.availableProcessors())(identity)
+    }).mapAsync(1024)(identity)
       .runWith(Sink.ignore)
       .onComplete(_ => outputActor ! Complete(generatorStartTime))
   }
