@@ -144,7 +144,7 @@ class App extends React.Component<any, State> {
             return isAlert ? atmLowAlert : atmLow;
         } else if (fillPercentage < 50) {
             return isAlert ? atmMidAlert : atmMid;
-        } else if (fillPercentage < 100) {
+        } else if (fillPercentage < 90) {
             return isAlert ? atmHighAlert : atmHigh;
         } else {
             return isAlert ? atmFullAlert : atmFull;
