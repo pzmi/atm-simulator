@@ -91,8 +91,10 @@ class GeneratorActor(private val atms: Array[ActorRef],
             case Gaussian => positiveGaussianRandom(wc.mean, wc.stddev).intValue()
           }
 
-          if (amount > 0) {
-            sendMessage(timestamp, amount, selection)
+          val dividableByTenAmount = amount - (amount % 10)
+
+          if (dividableByTenAmount > 0) {
+            sendMessage(timestamp, dividableByTenAmount, selection)
           } else {
             Future.successful(None)
           }
